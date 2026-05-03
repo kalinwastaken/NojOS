@@ -1,7 +1,7 @@
 /*
 The following is a work made with the help of many online resources,
 Every website and person sourced in this project will be listed in what
-they indirectly helped create.
+they indirectly and indirectly helped create.
 */
 const prompt = require('prompt-sync')();
 const os = require('os');
