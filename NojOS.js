@@ -1,7 +1,7 @@
 /*
 The following is a work made with the help of many online resources,
 Every website and person sourced in this project will be listed in what
-they indirectly and indirectly helped create.
+they indirectly and directly helped create.
 */
 const prompt = require('prompt-sync')();
 const os = require('os');
@@ -18,7 +18,7 @@ function work() {
     if (value != null && value.substring(0,1) == "~") {
         let command = value.substring(1,value.length)
         if (command == "help") {
-            console.log("A command is defined by '~'\n~help - Write this message\n~math - Run math equations\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~specs - Get specifications about the device\n~date - Get time specifications\n~alarm XX:XX (Mon XX) - Sets alarm\n~echo STRING - Echo message into console\n~exit - Exit the OS");
+            console.log("A command is defined by '~'\n~help - Write this message\n~math - Run math equations\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
         } else if (command == "math") {
             console.log("NojOS-Math");
             mathf();
@@ -29,7 +29,7 @@ function work() {
             Sourced from:
             https://nodejs.org/api/fs.html#fswritefilesyncfile-data-options
             */
-            fs.writeFileSync(command.substring(5,command.length)+'.txt', prompt("Text: ").replaceAll("\\n", "\n").replaceAll("MATH", global), (err) => {
+            fs.writeFileSync(command.substring(5,command.length)+'.txt', prompt("Text: ").replaceAll("\\n", "\n"), (err) => {
                 if (err) throw err;
             });
         } else if (command.substring(0,4) == "read") {
@@ -37,14 +37,11 @@ function work() {
         } else if (command.substring(0,7) == "execute"){
             compile(command.substring(8,command.length));
         } else if (command.substring(0,4) == "echo") {
-            console.log(command.substring(5,command.length).replaceAll("ALARM", alarm).replaceAll("MATH", global)).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0,21));
+            console.log(command.substring(5,command.length).replaceAll("ALARM", alarm).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0,21)));
         } else if (command == "date") {
             console.log(Date().substring(0,21));
         } else if (command == "specs") {
             specs();
-        } else if (command.substring(0,5) == "alarm"){
-            alarm = command.substring(6,command.length);
-            alarmf();
         } else if (command != "exit" && value != null) {
             console.log(`ERROR: '~${command}' is not defined`);
         } else {
@@ -119,21 +116,6 @@ try {
 } catch (error) {
     return (`ERROR: ${error.message}`);
 }};
-function alarmf() {
-    console.log("alarmf");
-    if (alarm.length == 5) {
-    if (alarm == Date().substring(16,21)) {
-        console.log(`${alarm} alarm has gone off!`);
-    }  else {
-        alarmf();
-    }} else if (alarm.length == 12) {
-        if (alarm == Date().substring(16,21) + " " + Date().substring(4,10)) {
-            console.log(`${alarm} alarm has gone off!`);
-        } else {
-            alarmf();
-        }
-    }
-}
 function compile(file) {
     let variables = {};
     let data = readFile(file+".txt");
@@ -199,6 +181,26 @@ function compile(file) {
             lines = i;
         }
 }};
+function graph(func) {
+    let x = "";
+    for (let v = 0; v<20.5;v = v + 0.5) {
+    let output = `${10-v}: `;
+    if (output.length != 6) {
+        if (output.length == 3) output += "   ";
+        if (output.length == 4) output += "  ";
+        if (output.length == 5) output += " ";
+    }
+    for (let i = -20; i<20.5; i = i + 0.5) {
+        if (Math.round(func(i+1)) == 10-(v)) {
+            output += "1";
+        } else {
+            output += "-";
+        }
+    }
+    x += "\n"+output
+}
+return x.replace("\n", "");
+};
 /*
     Entire syntax created by me,
     no external help.
@@ -462,7 +464,7 @@ function mathf() {
     op = "cubvol ";
     if (math.substring(0,op.length) == op) {
         getArg(op);
-        output = 6*Math.pow(f1,2);
+        output = Math.pow(f1,3);
         global = output;
     }
     op = "boxvol ";
@@ -489,7 +491,140 @@ function mathf() {
         output = (f1*f2*f3)/2;
         global = output;
     }
-    if (f1 == undefined && f2 == undefined && f3 == undefined) {
+    op = "log ";
+    if (math.substring(0,op.length) == op) {
+        getArg(op);
+        output = Math.log(f1);
+        global = output;
+    }
+    op = "graph ";
+    if (math.substring(0,6) == op) {
+        let arithfunc;
+        let arith = false;
+        let func = math.substring(6,math.length)
+        function inverse(f) {return 1/f};
+        if (func == "sin")  func = Math.sin;
+        else if (func == "cos")  func = Math.cos;
+        else if (func == "tan")  func = Math.tan;
+        else if (func == "asin")  func = Math.asin;
+        else if (func == "acos")  func = Math.acos;
+        else if (func == "atan")  func = Math.atan;
+        else if (func == "sinh")  func = Math.sinh;
+        else if (func == "cosh")  func = Math.cosh
+        else if (func == "tanh")  func = Math.tanh;
+        else if (func == "asinh")  func = Math.asinh;
+        else if (func == "acosh")  func = Math.acosh;
+        else if (func == "atanh")  func = Math.atanh;
+        else if (func == "sqrt") func = Math.sqrt;
+        else if (func == "log") func = Math.log;
+        else if (func == "inverse") func = inverse;
+        else if (func.includes("/")) {
+            arithfunc = function(f) {
+                if (func.substring(0,func.indexOf("/")) == "x") {
+                    if (func.substring(func.indexOf("/")+1,func.length) != "ans" && func.substring(func.indexOf("/")+1,func.length) != "pi") {
+                    return f/Number(func.substring(func.indexOf("/")+1,func.length));
+                    } else if (func.substring(func.indexOf("/")+1,func.length) == "pi") {
+                    return f/Math.PI;
+                    } else {
+                    return f/global;
+                    }
+                } else {
+                    if (func.substring(0,func.indexOf("-")) != "ans" && func.substring(0,func.indexOf("-")) != "pi") {
+                    return Number(func.substring(0,func.indexOf("-")))/f;
+                    } else if (func.substring(0,func.indexOf("-")) == "pi") {
+                    return Math.PI/f;
+                    } else {
+                    return global/f;
+                    }
+                }
+            }
+            output = graph(arithfunc);
+            arith = true;
+        } else if (func.includes("*")) {
+            arithfunc = function(f) {
+                if (func.substring(0,func.indexOf("*")) == "x") {
+                    if (func.substring(func.indexOf("*")+1,func.length) != "ans" && func.substring(func.indexOf("*")+1,func.length) != "pi") {
+                    return f*Number(func.substring(func.indexOf("*")+1,func.length));
+                    } else if (func.substring(func.indexOf("*")+1,func.length) == "pi") {
+                    return f*Math.PI;
+                    } else {
+                    return f*global;
+                    }
+                } else {
+                    if (func.substring(0,func.indexOf("*")) != "ans" && func.substring(0,func.indexOf("*")) != "pi") {
+                    return Number(func.substring(0,func.indexOf("*")))*f;
+                    } else if (func.substring(0,func.indexOf("*")) == "pi") {
+                    return Math.PI*f;
+                    } else {
+                    return global*f;
+                    }
+                }
+            }
+            output = graph(arithfunc);
+            arith = true;
+        } else if (func.includes("+")) {
+            arithfunc = function(f) {
+                if (func.substring(0,func.indexOf("+")) == "x") {
+                    if (func.substring(func.indexOf("+")+1,func.length) != "ans" && func.substring(func.indexOf("+")+1,func.length) != "pi") {
+                    return f+Number(func.substring(func.indexOf("+")+1,func.length));
+                    } else if (func.substring(func.indexOf("+")+1,func.length) == "pi") {
+                    return f+Math.PI;
+                    } else {
+                    return f+global;
+                    }
+                } else {
+                    if (func.substring(0,func.indexOf("+")) != "ans" && func.substring(0,func.indexOf("+")) != "pi") {
+                    return Number(func.substring(0,func.indexOf("+")))+f;
+                    } else if (func.substring(0,func.indexOf("+")) == "pi") {
+                    return Math.PI+f;
+                    } else {
+                    return global+f;
+                    }
+                }
+            }
+            output = graph(arithfunc);
+            arith = true;
+            output = graph(arithfunc);
+            arith = true;
+        } else if (func.includes("-")) {
+            arithfunc = function(f) {
+                if (func.substring(0,func.indexOf("-")) == "x") {
+                    if (func.substring(func.indexOf("-")+1,func.length) != "ans" && func.substring(func.indexOf("-")+1,func.length) != "pi") {
+                    return f-Number(func.substring(func.indexOf("-")+1,func.length));
+                    } else if (func.substring(func.indexOf("-")+1,func.length) == "pi") {
+                    return f-Math.PI;
+                    } else {
+                    return f-global;
+                    }
+                } else {
+                    if (func.substring(0,func.indexOf("-")) != "ans" && func.substring(0,func.indexOf("-")) != "pi") {
+                    return Number(func.substring(0,func.indexOf("-")))-f;
+                    } else if (func.substring(0,func.indexOf("-")) == "pi") {
+                    return Math.PI-f;
+                    } else {
+                    return global-f;
+                    }
+                }
+            }
+            output = graph(arithfunc);
+            arith = true;
+        } else if (func = "x") {
+            arithfunc = function(f) {
+                return f+0;
+            }
+            output = graph(arithfunc);
+            arith = true;
+        }
+        else {
+            function zero(f) {
+                return 0;
+            }
+            func = zero;
+            console.log("Invalid function");
+        }
+        if (!arith) output = graph(func);
+    }
+    if (typeof output != "string" && f1 == undefined && f2 == undefined && f3 == undefined) {
         if (math == "pi") {
             output = Math.PI;
         } else if (math == "ans") {
@@ -498,7 +633,7 @@ function mathf() {
             output = Number(math);
         }
     }
-    if (typeof output == "number") {
+    if (typeof output == "number" || typeof output == "string") {
         console.log(output);
     } 
     if (math == "exit") {
