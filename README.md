@@ -1,7 +1,16 @@
 # _Welcome to NojOS_
 ![image](https://www.image2url.com/r2/default/images/1777936511929-7dd8fe80-837b-4da6-a93b-d3a6dacd4034.png)  
 _Screenshot from NojOS terminal as of 04.05.2026_  
-This is in purpose to document all commands in detail in the NojOS terminal.
+This is in purpose to document all commands in detail in the NojOS terminal and installation.
+## Installation and Running
+Save a folder in your home directory as 'NojOS' with all files in the folder.  
+To run NojOS, use must run `node NojOS/NojOS.js`  
+Note: node.js must be installed to run this program, along with the modules:  
+* os
+* fs
+* prompt-sync
+
+and your package.json's type parameter must be set to `"commonjs"
 ## `~help`
 Prints a help message with a list of commands.
 ## `~echo`
