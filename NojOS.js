@@ -16,7 +16,7 @@ function work() {
     if (value != null && value.substring(0,1) == "~") {
         let command = value.substring(1,value.length)
         if (command == "help") {
-            console.log("A command is defined by '~'\n~help - Write this message\n~math - Run math equations\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
+            console.log("A command is defined by '~'\n~help - Write this message\n~dict word - Get definition of word per Webster's English Dictionary\n~math - Run math equations\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
         } else if (command == "math") {
             console.log("NojOS-Math");
             mathf();
