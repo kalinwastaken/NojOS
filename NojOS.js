@@ -42,6 +42,17 @@ function work() {
             console.log(Date().substring(0,21));
         } else if (command == "specs") {
             specs();
+        } else if (command.substring(0,4) == "dict") {
+            /*From Matthew Reagan
+            https://github.com/matthewreagan/WebstersEnglishDictionary*/
+            let json = readFile("NojOS/dict.txt");
+            let dict = JSON.parse(json);
+            let output = dict[command.substring(5,command.length)].replaceAll("\\n", "\n");
+            let nums = 1;
+            if (output == undefined) {
+                output = "Invalid word";
+            }
+            console.log(output);
         } else if (command != "exit" && value != null) {
             console.log(`ERROR: '~${command}' is not defined`);
         } else {
