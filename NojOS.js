@@ -30,6 +30,8 @@ function work() {
             fs.writeFileSync(command.substring(5,command.length)+'.txt', prompt("Text: ").replaceAll("\\n", "\n"), (err) => {
                 if (err) throw err;
             });
+        } else if (command == "calendar") {
+            cal();
         } else if (command.substring(0,4) == "read") {
             console.log(readFile(command.substring(5,command.length)+'.txt'));
         } else if (command.substring(0,7) == "execute"){
@@ -106,6 +108,84 @@ function specs() {
                 console.log("--------------");
             }
 }
+function cal() {
+  let month = Date().substring(4,7);
+  console.log(Date().substring(4,7)+" "+ Date().substring(11,15));
+  console.log("Su Mo Tu We Th Fr Sa");
+  //Get first day of the current month.
+  function getFirst() {
+  let today = Date().substring(0,3);
+  let value;
+  value = Number(Date().substring(8,10));
+  for (value; value > 1; value--) {
+    if (today == "Sun") {
+      today = "Sat";
+    } else if (today == "Sat") {
+      today = "Fri";
+    } else if (today == "Fri") {
+      today = "Thu";
+    } else if (today == "Thu") {
+      today = "Wed";
+    } else if (today == "Wed") {
+      today = "Tue";
+    } else if (today == "Tue") {
+      today = "Mon";
+    } else {
+      today = "Sun";
+    }
+  }
+  return today;
+  }
+   /**
+    * Checks if first day of month is day, and if so, prints accordingly.
+    * @param {string} day Sun, Mon, Tue, etc.
+    * @param {string} tx1 First line of calendar
+    * @param {string} tx2 Second line of calendar
+    * @param {string} tx3 Third line of calendar
+    * @param {string} tx4 Fourth line of calendar
+    * @param {string} tx30 If month has 30 days, print this as fifth line
+    * @param {string} tx31 If month has 31 days, print this as fifth line
+    * @param {string} txleap If month is Feb. and is a leap year, print this as fifth line
+    * @param {string} txnotleap If month is Feb. and isn't a leap year, print this as fifth line
+    */
+  function calday(day, tx1, tx2, tx3, tx4, tx30, tx31, txleap, txnotleap) {
+  if (getFirst() == day) {
+    console.log(tx1);
+    console.log(tx2);
+    console.log(tx3);
+    console.log(tx4);
+    if (month == "Jan" || month == "Mar"|| month == "May"|| month == "Jul"|| month == "Aug"|| month == "Oct"|| month == "Dec") console.log(tx31);
+    else if (month == "Apr" || month == "Jun"|| month == "Sep"|| month == "Nov") console.log(tx30);
+    else if (month == "Feb") {
+      if (Number(Date().substring(11,15))%4 == 0 || (Date().substring(13,15) == "00" && Number(Date.substring(11,15)))%400 == 0) console.log(txleap);
+      else console.log(txnotleap);
+      }
+    } 
+  }
+  calday("Sun", "1  2  3  4  5  6  7", "8  9 10 11 12 13 14","15 16 17 18 19 20 21","22 23 24 25 26 27 28", "29 30", "29 30 31", "29", "");
+  calday("Mon", "   1  2  3  4  5  6", "7  8  9 10 11 12 13","14 15 16 17 18 19 20","21 22 23 24 25 26 27", "28 29 30", "28 29 30 31", "28 29", "28");
+  calday("Tue", "      1  2  3  4  5", "6  7  8  9 10 11 12","13 14 15 16 17 18 19","20 21 22 23 24 25 26", "27 28 29 30", "27 28 29 30 31", "27 28 29", "27 28");
+  calday("Wed", "         1  2  3  4", "5  6  7  8  9 10 11","12 13 14 15 16 17 18","19 20 21 22 23 24 25", "26 27 28 29 30", "26 27 28 29 30 31", "26 27 28 29", "26 27 28");
+  calday("Thu", "            1  2  3", "4  5  6  7  8  9 10","11 12 13 14 15 16 17","18 19 20 21 22 23 24", "25 26 27 28 29 30", "25 26 27 28 29 30 31", "25 26 27 28 29", "25 26 27 28");
+  calday("Fri", "               1  2", "3  4  5  6  7  8  9","10 11 12 13 14 15 16","17 18 19 20 21 22 23", "24 25 26 27 28 29 30", "24 25 26 27 28 29 30\n31", "24 25 26 27 28 29", "24 25 26 27 28");
+  calday("Sat", "                  1", "2  3  4  5  6  7  8","9 10 11 12 13 14 15","16 17 18 19 20 21 22", "23 24 25 26 27 28 29\n30", "23 24 25 26 27 28 29 \n30 31", "23 24 25 26 27 28 29", "23 24 25 26 27 28");
+  let daynum = Date().substring(8,10);
+  if (daynum.substring(0,1) == "0") daynum = daynum.replace("0", "");
+  let num = 0;
+  if (daynum.length == 2) {
+    num = 1;
+  }
+  if (daynum.substring(num,num+1) == "1") {
+    daynum += "st";
+  } else if (daynum == "2") {
+    daynum += "nd";
+  } else if (daynum == "3") {
+    daynum += "rd";
+  } else {
+    daynum += "th";
+  }
+  console.log(`Today is the ${daynum}`);
+}
 //From Mitchell Mudd
 function readFile(filePath) {
 try {
@@ -179,26 +259,6 @@ function compile(file) {
             lines = i;
         }
 }};
-function graph(func) {
-    let x = "";
-    for (let v = 0; v<20.5;v = v + 0.5) {
-    let output = `${10-v}: `;
-    if (output.length != 6) {
-        if (output.length == 3) output += "   ";
-        if (output.length == 4) output += "  ";
-        if (output.length == 5) output += " ";
-    }
-    for (let i = -20; i<20.5; i = i + 0.5) {
-        if (Math.round(func(i+1)) == 10-(v)) {
-            output += "1";
-        } else {
-            output += "-";
-        }
-    }
-    x += "\n"+output
-}
-return x.replace("\n", "");
-};
 /*
     Entire syntax created by me,
     no external help.
@@ -208,6 +268,30 @@ function mathf() {
     let output;
     let op;
     let math = prompt("Math: ");
+     /**
+    * Graphs function roughly.
+    * @param {function} func Function such as Math.sin
+    */
+    function graph(func) {
+        let x = "";
+        for (let v = 0; v<20.5;v = v + 0.5) {
+        let output = `${10-v}: `;
+        if (output.length != 6) {
+            if (output.length == 3) output += "   ";
+            if (output.length == 4) output += "  ";
+            if (output.length == 5) output += " ";
+        }
+        for (let i = -20; i<20.5; i = i + 0.5) {
+            if (Math.round(func(i+1)) == 10-(v)) {
+              output += "1";
+            } else {
+                output += "-";
+            }
+        }
+       x += "\n"+output
+    }
+        return x.replace("\n", "");
+    };
     /**
     * Sets f1 as first arg and f2 as second arg for arithmetic operations. 
     * @param {string} operator Arithmetic Operator, like '+'
