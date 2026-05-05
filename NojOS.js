@@ -16,7 +16,7 @@ function work() {
     if (value != null && value.substring(0,1) == "~") {
         let command = value.substring(1,value.length)
         if (command == "help") {
-            console.log("A command is defined by '~'\n~help - Write this message\n~math - Run math equations\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
+            console.log("A command is defined by '~'\n~help - Write this message\n~math - Run math equations\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
         } else if (command == "math") {
             console.log("NojOS-Math");
             mathf();
@@ -56,7 +56,7 @@ function work() {
     }
 }
 function specs() {
-    /*
+        /*
         Sourced from
         https://nodejs.org/api/os.html
         */
@@ -108,6 +108,14 @@ function specs() {
                 console.log("--------------");
             }
 }
+//From Mitchell Mudd
+function readFile(filePath) {
+try {
+    const data = fs.readFileSync(filePath);
+    return data.toString();
+} catch (error) {
+    return (`ERROR: ${error.message}`);
+}};
 function cal() {
   let month = Date().substring(4,7);
   console.log(Date().substring(4,7)+" "+ Date().substring(11,15));
@@ -168,7 +176,7 @@ function cal() {
   calday("Wed", "         1  2  3  4", "5  6  7  8  9 10 11","12 13 14 15 16 17 18","19 20 21 22 23 24 25", "26 27 28 29 30", "26 27 28 29 30 31", "26 27 28 29", "26 27 28");
   calday("Thu", "            1  2  3", "4  5  6  7  8  9 10","11 12 13 14 15 16 17","18 19 20 21 22 23 24", "25 26 27 28 29 30", "25 26 27 28 29 30 31", "25 26 27 28 29", "25 26 27 28");
   calday("Fri", "               1  2", "3  4  5  6  7  8  9","10 11 12 13 14 15 16","17 18 19 20 21 22 23", "24 25 26 27 28 29 30", "24 25 26 27 28 29 30\n31", "24 25 26 27 28 29", "24 25 26 27 28");
-  calday("Sat", "                  1", "2  3  4  5  6  7  8","9 10 11 12 13 14 15","16 17 18 19 20 21 22", "23 24 25 26 27 28 29\n30", "23 24 25 26 27 28 29 \n30 31", "23 24 25 26 27 28 29", "23 24 25 26 27 28");
+  calday("Sat", "                  1", "2  3  4  5  6  7  8","9  10 11 12 13 14 15","16 17 18 19 20 21 22", "23 24 25 26 27 28 29\n30", "23 24 25 26 27 28 29 \n30 31", "23 24 25 26 27 28 29", "23 24 25 26 27 28");
   let daynum = Date().substring(8,10);
   if (daynum.substring(0,1) == "0") daynum = daynum.replace("0", "");
   let num = 0;
@@ -186,14 +194,6 @@ function cal() {
   }
   console.log(`Today is the ${daynum}`);
 }
-//From Mitchell Mudd
-function readFile(filePath) {
-try {
-    const data = fs.readFileSync(filePath);
-    return data.toString();
-} catch (error) {
-    return (`ERROR: ${error.message}`);
-}};
 function compile(file) {
     let variables = {};
     let data = readFile(file+".txt");
