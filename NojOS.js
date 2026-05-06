@@ -47,10 +47,12 @@ function work() {
             https://github.com/matthewreagan/WebstersEnglishDictionary*/
             let json = readFile("NojOS/dict.txt");
             let dict = JSON.parse(json);
-            let output = dict[command.substring(5,command.length)].replaceAll("\\n", "\n");
+            let output = dict[command.substring(5,command.length)]
             let nums = 1;
             if (output == undefined) {
                 output = "Invalid word";
+            } else {
+                output = output.replaceAll("\\n", "\n");
             }
             console.log(output);
         } else if (command != "exit" && value != null) {
@@ -622,9 +624,9 @@ function mathf() {
                     return f/global;
                     }
                 } else {
-                    if (func.substring(0,func.indexOf("-")) != "ans" && func.substring(0,func.indexOf("-")) != "pi") {
-                    return Number(func.substring(0,func.indexOf("-")))/f;
-                    } else if (func.substring(0,func.indexOf("-")) == "pi") {
+                    if (func.substring(0,func.indexOf("/")) != "ans" && func.substring(0,func.indexOf("/")) != "pi") {
+                    return Number(func.substring(0,func.indexOf("/")))/f;
+                    } else if (func.substring(0,func.indexOf("/")) == "pi") {
                     return Math.PI/f;
                     } else {
                     return global/f;
