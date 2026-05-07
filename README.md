@@ -75,3 +75,7 @@ Basic arithmetic is also supported in graph, such as:
 `graph pi*x`  
 which outputs:  
 ![image](https://www.image2url.com/r2/default/images/1777937403686-9c92e147-5438-4e01-adb1-9f79af950e4d.png)
+## `~dict`
+Gets definition of word from large dictionary .txt file from text after `~dict`.
+## `~image`
+Prints image of file path after `~image` and then halts. Technical restrictions prevent non-halting.
