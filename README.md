@@ -3,7 +3,7 @@
 _Screenshot from NojOS terminal as of 04.05.2026_  
 This is in purpose to document all commands in detail in the NojOS terminal and installation.
 ## Installation and Running
-Save a folder in your home directory as 'NojOS' with all files in the folder.  
+First, move file to home directory for proper use.
 To run NojOS, use must run `node NojOS/NojOS.js`  
 Note: node.js must be installed to run this program, along with the modules:  
 * os
