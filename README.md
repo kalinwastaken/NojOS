@@ -4,7 +4,7 @@ _Screenshot from NojOS terminal as of 04.05.2026_
 This is in purpose to document all commands in detail in the NojOS terminal and installation.
 ## Installation and Running
 First, move file to home directory for proper use.
-To run NojOS, use must run `node NojOS-1.0.0/NojOS-1.0.0/NojOS.js`  
+To run NojOS, use must run `node NojOS-VERSION/NojOS-VERSION/NojOS.js`  
 Note: node.js must be installed to run this program, along with the modules:  
 * os
 * fs
