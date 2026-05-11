@@ -72,7 +72,9 @@ function work() {
             console.log("Thank you for using NojOS");
         }
         if (command != "exit" && command != "math" && value != null && command.substring(0,5) != "image")work();
-        else if (command.substring(0,5) == "image") console.log("Sorry, image capabilites are only allowed to be executed at the halt of the program due to technical restrictions.");
+        else if (command.substring(0,5) == "image") {
+            console.log("Loading...");
+        }
     } else if (value != null) {
         console.log(`ERROR: '${value}' is invalid syntax, try '~${value}'`);
         work();
@@ -219,7 +221,7 @@ function cal() {
 }
 function compile(file) {
     let variables = {};
-    let data = readFile(file+".txt");
+    let data = readFile(file+".laika");
     let lines = 1;
     for (let i = 0; i < lines; i++) {
         let line = data.substring(data.indexOf("~"), data.indexOf("\n"))
@@ -246,37 +248,16 @@ function compile(file) {
             console.log(readFile(command.substring(5,command.length)+'.txt'));
         } else if (command.substring(0,4) == "echo") {
             command = command.substring(5,command.length).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0,21));
+            for (let v = 0; v < Object.keys(variables).length; v++) {
+              command = command.replaceAll(Object.keys(variables)[v], variables[Object.keys(variables)[v]]);
+            }
             console.log(command);
         } else if (command == "date") {
             console.log(Date().substring(0,21));
         } else if (command == "specs") {
             specs();
-        } else if (command.substring(0,2) == "if") {
-            let condition = command.substring(3,command.length);
-            let op;
-            let value;
-            if (condition.includes("=")) op = "="
-            if (condition.includes("!")) op = "!"
-            if (condition.includes(">")) op = ">"
-            if (condition.includes("<")) op = "<"
-            let f1 = Number(condition.substring(0,condition.indexOf(op)))
-            let f2 = Number(condition.substring(condition.indexOf(op)+1,condition.length))
-            if (op == ">" || op == "<") {
-                if (op == ">") {
-                    value = f1>f2;
-                } else {
-                    value = f1<f2;
-                }
-            } else if (op == "!" || op == "=") {
-                if (op == "=") {
-                    value = f1==f2;
-                } else {
-                    value = f1!=f2;
-                }
-            }
-            if (!value) {
-                lines = i;
-            }
+        } else if (command.substring(0,3) == "var") {
+            variables[command.substring(4,command.indexOf("="))] = command.substring(command.indexOf("=")+1, command.length);
         } else {
             console.log("Invalid command");
             lines = i;
@@ -713,7 +694,7 @@ function mathf() {
             }
             output = graph(arithfunc);
             arith = true;
-        } else if (func = "x") {
+        } else if (func == "x") {
             arithfunc = function(f) {
                 return f+0;
             }
