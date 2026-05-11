@@ -66,7 +66,7 @@ function work() {
                 output = output.replaceAll("\\n", "\n");
             }
             console.log(output);
-        } else if (command != "exit" && value != null && command != image) {
+        } else if (command != "exit" && value != null && command != "image") {
             console.log(`ERROR: '~${command}' is not defined`);
         } else {
             console.log("Thank you for using NojOS");
