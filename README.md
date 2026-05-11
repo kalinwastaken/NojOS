@@ -9,6 +9,7 @@ Note: node.js must be installed to run this program, along with the modules:
 * os
 * fs
 * prompt-sync
+* terminal-image
 
 and your package.json's type parameter must be set to `"commonjs"
 ## `~help`
