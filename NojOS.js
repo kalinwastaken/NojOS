@@ -25,7 +25,7 @@ function work() {
     if (value != null && value.substring(0,1) == "~") {
         let command = value.substring(1,value.length)
         if (command == "help") {
-            console.log("A command is defined by '~'\n~help - Write this message\n~dict word - Get definition of word per Webster's English Dictionary\n~math - Run math equations\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
+            console.log("A command is defined by '~'\n~help - Write this message\n~dict word - Get definition of word per Webster's English Dictionary\n~math - Run math equations\n~var name=value - Define a variable with a value, can be called in ~echo and ~execute.\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
         } else if (command == "math") {
             console.log("NojOS-Math");
             mathf();
@@ -48,7 +48,7 @@ function work() {
         } else if (command.substring(0,4) == "echo") {
             command = command.substring(5,command.length).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0,21));
             for (let v = 0; v < Object.keys(vars).length; v++) {
-              command = command.replaceAll(Object.keys(vars)[v], variables[Object.keys(vars)[v]]);
+              command = command.replaceAll(Object.keys(vars)[v], vars[Object.keys(vars)[v]]);
             }
             console.log(command);
         } else if (command.substring(0,5) == "image"){
@@ -72,7 +72,7 @@ function work() {
                 output = output.replaceAll("\\n", "\n");
             }
             console.log(output);
-        } else if (command == "var"){
+        } else if (command.substring(0,3) == "var"){
             vars[command.substring(4,command.indexOf("="))] = command.substring(command.indexOf("=")+1, command.length);
         } else if (command != "exit" && value != null && command != "image") {
             console.log(`ERROR: '~${command}' is not defined`);
@@ -421,6 +421,26 @@ function mathf() {
     if (math.includes(op)) {
         getArgArithmetic(op);
         output = f1%f2;
+        global = output;
+    }
+    op = "% of" 
+    console.log("This is based off of floating point math, so may be slightly inaccurate.")
+    if (math.includes(op)) {
+        if (math.substring(0,math.indexOf(op)) != "ans" && math.substring(0,math.indexOf(op)) != "pi") {
+            f1 = Number(math.substring(0,math.indexOf(op)));
+        } else if (math.substring(0,math.indexOf(op)) == "ans") {
+            f1 = global;
+        } else {
+            f1 = Math.PI;
+        }
+        if (math.substring(math.indexOf(op)+4,math.length) != "ans" && math.substring(math.indexOf(op)+4,math.length) != "pi") {
+            f2 = Number((math.indexOf(op)+4,math.length))
+        } else if ((math.indexOf(op)+4,math.length) == "ans") {
+            f2 = global
+        } else {
+            f2 = Math.PI
+        }
+        output = (f1*f2)/100
         global = output;
     }
     op = "sqrt "
