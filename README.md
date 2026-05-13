@@ -11,7 +11,7 @@ Note: node.js must be installed to run this program, along with the modules:
 * prompt-sync
 * terminal-image
 
-and your package.json's type parameter must be set to `"commonjs"
+and your package.json's type parameter must be set to `"module"
 ## `~help`
 Prints a help message with a list of commands.
 ## `~echo`
