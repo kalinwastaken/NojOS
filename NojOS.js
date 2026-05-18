@@ -3,10 +3,10 @@ The following is a work made with the help of many online resources,
 Every website and person sourced in this project will be listed in what
 they indirectly and directly helped create.
 */
-import {
-    decode,
-    encode
-} from "./proccessor.js";
+//import {
+//    decode,
+//    encode
+//} from "./proccessor.js";
 import promptSync from 'prompt-sync';
 const prompt = promptSync();
 import os from "node:os";
@@ -27,9 +27,16 @@ let user = {
 }
 console.log(`Hello ${userdata.substring(userdata.indexOf("name:")+5, userdata.length)}`);
 console.log(`For help; type ~help`);
-
+if (readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) == "") {
+    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, "#LIB", (err) => {
+                if (err) throw err;
+            });
+}
 function work() {
     let value = prompt("Command: ");
+    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`)+"\n"+value, (err) => {
+                if (err) throw err;
+            });
     if (value != null && value.substring(0, 1) == "~") {
         let command = value.substring(1, value.length)
         if (command == "help") {
@@ -52,7 +59,7 @@ function work() {
         } else if (command.substring(0, 4) == "read") {
             console.log(readFile(command.substring(5, command.length) + '.txt'));
         } else if (command.substring(0, 7) == "execute") {
-            compile(command.substring(8, command.length));
+            compile(readFile(command.substring(8, command.length)+".laika"));
         } else if (command.substring(0, 4) == "echo") {
             command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0, 21));
             for (let v = 0; v < Object.keys(vars).length; v++) {
@@ -303,10 +310,16 @@ function cal() {
     console.log(`Today is the ${daynum}`);
 }
 
-function compile(file) {
+function compile(data) {
     let variables = {};
-    let data = readFile(file + ".laika");
+    let functions = {};
     let lines = 1;
+    //Tracks punctation, as stack. Saved my life RAHHHHHH;
+    let punc = {
+        if:-1,
+        func:-1,
+
+    }
     for (let i = 0; i < lines; i++) {
         let line = data.substring(data.indexOf("~"), data.indexOf("\n"))
         data = data.replace(line + "\n", "");
@@ -319,8 +332,6 @@ function compile(file) {
             mathf();
         } else if (command == "clear") {
             console.clear();
-        } else if (command.substring(0, 1) == "$") {
-            //For making comments
         } else if (command.substring(0, 4) == "save") {
             /*
             Sourced from:
@@ -344,10 +355,13 @@ function compile(file) {
         } else if (command == "specs") {
             specs();
         } else if (command.substring(0, 2) == "if") {
-            let condition = command.substring(3, command.length)
+            punc.if++;
+            let condition = command.substring(command.indexOf("(")+1, command.indexOf(")")).replaceAll(" ", "");
+            if (!command.includes("{")) {
+                throw new Error("Failure to start punctuation for if statement");
+            }
             let op;
             let value;
-            console.log(condition);
             if (condition.includes("=")) op = "="
             else if (condition.includes("!")) op = "!"
             else if (condition.includes(">")) op = ">"
@@ -355,12 +369,15 @@ function compile(file) {
             if (op != undefined) {
                 let f1 = (condition.substring(0, condition.indexOf(op)))
                 let f2 = (condition.substring(condition.indexOf(op) + 1, condition.length))
+                f1 = f1.replace("\r", "");
+                f2 = f2.replace("\r", "");
                 for (let i = 0; i < Object.keys(variables).length; i++) {
-                    if (f1 == (Object.keys(variables)[i])) f1 = variables[Object.keys(variables)[i]];
+                    console.log({f1:variables[f1]});
+                    if (f1 == (Object.keys(variables)[i])) f1 = variables[Object.keys(variables)[i]].replace("\r","");
                     if (f2 == (Object.keys(variables)[i])) f2 = variables[Object.keys(variables)[i]];
                 }
-                if (f1 == "USER") f1 = user.name, console.log(f1);
-                else if (f1 == "MATH") f1 = global;
+                if (f1 == ("USER")) f1 = user.name, console.log(f1);
+                else if (f1 == ("MATH")) f1 = global;
                 else if (f1 == "DATE") f1 = Date.substring(0, 21)
                 if (f2 == "USER") f2 = user.name;
                 else if (f2 == "MATH") f2 = global;
@@ -375,39 +392,65 @@ function compile(file) {
                             value = f1 < f2;
                         }
                     } else {
-                        console.log("Invalid comparison");
+                        throw new Error("Invalid comparison");
                     }
                 } else if (op == "!" || op == "=") {
-                    if (Number(f1) != NaN) f1 = Number(f1);
-                    if (Number(f2) != NaN) f2 = Number(f2);
+                    console.log("! or =");
                     if (op == "=") {
                         value = f1 == f2;
+                        console.log({1:f1,2:f2});
                     } else {
                         value = f1 != f2;
                     }
                 }
-            } else if (condition == ";T") {
+            } else if (condition.includes(";T")) {
                 value = true;
-            } else if (condition == ";F") {
+            } else if (condition.includes(";F")) {
                 value = false;
             } else {
-                console.log(condition);
                 value = variables[condition];
                 if (typeof value != "boolean") {
-                    console.log("Condition doesn't return boolean value.")
+                    throw new Error("Condition doesn't return boolean value.");
                 }
             }
+
             if (!value) {
-                console.log(true)
-                data = data.substring(data.indexOf("~END") + 5, data.length);
+                let findBrack = data;
+                for (let i = 0; i < punc.if; i++) {
+                    findBrack = findBrack.replace("~}\n", "");
+                }
+                data = data.substring(findBrack.indexOf("~}") + 3, data.length);
             }
-        } else if (command == 'END') {
+        } else if (command.substring(0,4) == "func") {
+            //Pushes stack forward
+            punc.func++;
+            let name = command.substring(command.indexOf("func "+5),command.indexOf(" ["));
+            let findSq = data;
+            for (let i = 0; i < punc.func; i++) {
+                findSq = findSqF.replace("[\n", "");
+            }
+            console.log(findSq);
+            //Gets all commands from inside function.
+            let code = findSq.substring(0, findSq.indexOf("~]")).replace("\n","").replace("\r", "\n");
+            functions[name] = code;
+            data = data.replace(findSq.substring(0, findSq.indexOf("~]")), "");
+            console.log(code);
+        } else if (command.substring(0,5) == "local") {
+            console.log(command.substring(6,command.length))
+            console.log(functions)
+            compile(functions["func " + command.substring(6,command.length).replace("\r", "")])
+        } else if (command.substring(0, 1) == "$" || command == "") {
+            //For making comments
+        //Should be command == "}" but fuck my life apparently nothing makes sense with these things
+        } else if (command.includes("}") || command.includes("]")) {
             //For ending if statements.
         } else if (command.substring(0, 3) == "var") {
             variables[command.substring(4, command.indexOf("="))] = command.substring(command.indexOf("=") + 1, command.length);
+            if (variables[command.substring(4, command.indexOf("="))].substring(0,6) == "prompt") {
+                variables[command.substring(4, command.indexOf("="))] = prompt(command.substring(command.indexOf("prompt")+7,command.length));
+            }
         } else {
-            console.log("Invalid command");
-            lines = i;
+            throw new Error("Invalid command");
         }
     }
 };
@@ -420,6 +463,9 @@ function mathf() {
     let output;
     let op;
     let math = prompt("Math: ");
+    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`)+"\n"+math, (err) => {
+        if (err) throw err;
+    });
     /**
      * Graphs function roughly.
      * @param {function} func Function such as Math.sin
@@ -564,8 +610,8 @@ function mathf() {
             global = output;
         }
         op = "% of"
-        console.log("This is based off of floating point math, so may be slightly inaccurate.")
         if (math.includes(op)) {
+            console.log("This is based off of floating point math, so may be slightly inaccurate.")
             if (math.substring(0, math.indexOf(op)) != "ans" && math.substring(0, math.indexOf(op)) != "pi") {
                 f1 = Number(math.substring(0, math.indexOf(op)));
             } else if (math.substring(0, math.indexOf(op)) == "ans") {
