@@ -3,7 +3,7 @@
 ~echo idk
 ~}
 ~$Trying to work on paranthesis for bool
-~var pen=Penis=Penis
+~var other=Hello=Hello
 ~if (Hello=Hello&pen) {
 ~echo This is great
 ~}
