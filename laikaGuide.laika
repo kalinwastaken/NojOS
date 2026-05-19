@@ -1,0 +1,9 @@
+~var x=Hello
+~if (Hello=Hello) {
+~echo idk
+~}
+~$Trying to work on paranthesis for bool
+~var pen=Penis=Penis
+~if (Hello=Hello&pen) {
+~echo This is great
+~}
