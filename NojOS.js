@@ -29,21 +29,22 @@ console.log(`Hello ${userdata.substring(userdata.indexOf("name:")+5, userdata.le
 console.log(`For help; type ~help`);
 if (readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) == "") {
     fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, "#LIB", (err) => {
-                if (err) throw err;
-            });
+        if (err) throw err;
+    });
 }
+
 function work() {
     let value = prompt("Command: ");
-    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`)+"\n"+value, (err) => {
-                if (err) throw err;
-            });
+    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) + "\n" + value, (err) => {
+        if (err) throw err;
+    });
     if (value != null && value.substring(0, 1) == "~") {
         let command = value.substring(1, value.length)
         if (command == "help") {
             console.log("A command is defined by '~'\n~help - Write this message\n~dict word - Get definition of word per Webster's English Dictionary\m~shape - Load a .laika shape.\n~math - Run math equations\n~var name=value - Define a variable with a value, can be called in ~echo and ~execute.\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
         } else if (command == "math") {
             console.log("NojOS-Math");
-            mathf();
+            mathf(prompt("Expression: "), false);
         } else if (command == "clear") {
             console.clear();
         } else if (command.substring(0, 4) == "save") {
@@ -59,7 +60,8 @@ function work() {
         } else if (command.substring(0, 4) == "read") {
             console.log(readFile(command.substring(5, command.length) + '.txt'));
         } else if (command.substring(0, 7) == "execute") {
-            compile(readFile(command.substring(8, command.length)+".laika"));
+            compile(readFile(command.substring(8, command.length) + ".laika"));
+            console.log(readFile(command.substring(8, command.length) + ".laika"))
         } else if (command.substring(0, 4) == "echo") {
             command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0, 21));
             for (let v = 0; v < Object.keys(vars).length; v++) {
@@ -309,16 +311,17 @@ function cal() {
     }
     console.log(`Today is the ${daynum}`);
 }
+let variables = {};
+let functions = {};
 
 function compile(data) {
-    let variables = {};
-    let functions = {};
+    console.log(data);
     let lines = 1;
     //Tracks punctation, as stack. Saved my life RAHHHHHH;
     let punc = {
-        if:-1,
-        func:-1,
-
+        if: -1,
+        func: -1,
+        for: -1
     }
     for (let i = 0; i < lines; i++) {
         let line = data.substring(data.indexOf("~"), data.indexOf("\n"))
@@ -345,7 +348,7 @@ function compile(data) {
         } else if (command.substring(0, 4) == "echo") {
             command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", user.name).replaceAll("DATE", Date().substring(0, 21));
             for (let v = 0; v < Object.keys(variables).length; v++) {
-                command = command.replaceAll(Object.keys(variables)[v], variables[Object.keys(variables)[v]]);
+                command = command.replaceAll(Object.keys(variables)[v], variables[Object.keys(variables)[v]]).replaceAll(true, ";T").replaceAll(false, ";F");
             }
             console.log(command);
         } else if (command.substring(0, 5) == "shape") {
@@ -356,64 +359,11 @@ function compile(data) {
             specs();
         } else if (command.substring(0, 2) == "if") {
             punc.if++;
-            let condition = command.substring(command.indexOf("(")+1, command.indexOf(")")).replaceAll(" ", "");
+            let condition = command.substring(command.indexOf("(") + 1, command.indexOf(")")).replaceAll(" ", "");
             if (!command.includes("{")) {
                 throw new Error("Failure to start punctuation for if statement");
             }
-            let op;
-            let value;
-            if (condition.includes("=")) op = "="
-            else if (condition.includes("!")) op = "!"
-            else if (condition.includes(">")) op = ">"
-            else if (condition.includes("<")) op = "<"
-            if (op != undefined) {
-                let f1 = (condition.substring(0, condition.indexOf(op)))
-                let f2 = (condition.substring(condition.indexOf(op) + 1, condition.length))
-                f1 = f1.replace("\r", "");
-                f2 = f2.replace("\r", "");
-                for (let i = 0; i < Object.keys(variables).length; i++) {
-                    console.log({f1:variables[f1]});
-                    if (f1 == (Object.keys(variables)[i])) f1 = variables[Object.keys(variables)[i]].replace("\r","");
-                    if (f2 == (Object.keys(variables)[i])) f2 = variables[Object.keys(variables)[i]];
-                }
-                if (f1 == ("USER")) f1 = user.name, console.log(f1);
-                else if (f1 == ("MATH")) f1 = global;
-                else if (f1 == "DATE") f1 = Date.substring(0, 21)
-                if (f2 == "USER") f2 = user.name;
-                else if (f2 == "MATH") f2 = global;
-                else if (f2 == "DATE") f2 = Date.substring(0, 21)
-                if (op == ">" || op == "<") {
-                    f1 = Number(f1);
-                    f2 = Number(f2);
-                    if (f1 != NaN && f2 != NaN) {
-                        if (op == ">") {
-                            value = f1 > f2;
-                        } else {
-                            value = f1 < f2;
-                        }
-                    } else {
-                        throw new Error("Invalid comparison");
-                    }
-                } else if (op == "!" || op == "=") {
-                    console.log("! or =");
-                    if (op == "=") {
-                        value = f1 == f2;
-                        console.log({1:f1,2:f2});
-                    } else {
-                        value = f1 != f2;
-                    }
-                }
-            } else if (condition.includes(";T")) {
-                value = true;
-            } else if (condition.includes(";F")) {
-                value = false;
-            } else {
-                value = variables[condition];
-                if (typeof value != "boolean") {
-                    throw new Error("Condition doesn't return boolean value.");
-                }
-            }
-
+            let value = lexer.bool(condition);
             if (!value) {
                 let findBrack = data;
                 for (let i = 0; i < punc.if; i++) {
@@ -421,49 +371,180 @@ function compile(data) {
                 }
                 data = data.substring(findBrack.indexOf("~}") + 3, data.length);
             }
-        } else if (command.substring(0,4) == "func") {
+        } else if (command.substring(0,3) == "for") {
+            punc.for++;
+            let condition = command.substring(command.indexOf("(") + 1, command.indexOf(")")).replaceAll(" ", "");
+            if (!command.replace(condition,"").includes("<")) {
+                throw new Error("Failure to start punctuation for for statement");
+            }
+            let value = lexer.bool(condition);
+            let findArr = data;
+            for (let i = 0; i < punc.for; i++) {
+                findArr = findArr.replace("<\n", "");
+            }
+            //Gets all commands from inside function.
+            let code = findArr.substring(0, findArr.indexOf("~>")).replace("\n", "").replace("\r", "\n");
+            data = data.replace(findArr.substring(0,findArr.indexOf("~>")),"")
+            for (let i; value;) {
+                compile(code);
+            }
+        } else if (command.substring(0, 4) == "func") {
             //Pushes stack forward
             punc.func++;
-            let name = command.substring(command.indexOf("func "+5),command.indexOf(" ["));
+            let name = command.substring(command.indexOf("func " + 5), command.indexOf(" ["));
             let findSq = data;
             for (let i = 0; i < punc.func; i++) {
-                findSq = findSqF.replace("[\n", "");
+                findSq = findSq.replace("[\n", "");
             }
-            console.log(findSq);
             //Gets all commands from inside function.
-            let code = findSq.substring(0, findSq.indexOf("~]")).replace("\n","").replace("\r", "\n");
+            let code = findSq.substring(0, findSq.indexOf("~]")).replace("\n", "").replace("\r", "\n");
             functions[name] = code;
             data = data.replace(findSq.substring(0, findSq.indexOf("~]")), "");
-            console.log(code);
-        } else if (command.substring(0,5) == "local") {
-            console.log(command.substring(6,command.length))
-            console.log(functions)
-            compile(functions["func " + command.substring(6,command.length).replace("\r", "")])
-        } else if (command.substring(0, 1) == "$" || command == "") {
-            //For making comments
-        //Should be command == "}" but fuck my life apparently nothing makes sense with these things
-        } else if (command.includes("}") || command.includes("]")) {
-            //For ending if statements.
+        } else if (command.substring(0, 5) == "local") {
+            compile(functions["func " + command.substring(6, command.length).replace("\r", "")])
+        } else if (command.substring(0, 1) == "$" || command == "" || command.includes("}") || command.includes("]") || command.includes(">")) {
+            /** All empty functions used for syntax or general purpose
+                * $ - For making comments
+                * "" - For empty lines
+                * } - For if statements
+                * ] - For function declarations
+                * > - For for loops
+            */
         } else if (command.substring(0, 3) == "var") {
-            variables[command.substring(4, command.indexOf("="))] = command.substring(command.indexOf("=") + 1, command.length);
-            if (variables[command.substring(4, command.indexOf("="))].substring(0,6) == "prompt") {
-                variables[command.substring(4, command.indexOf("="))] = prompt(command.substring(command.indexOf("prompt")+7,command.length));
+            variables[command.substring(4, command.indexOf("="))] = command.substring(command.indexOf("=") + 1, command.length).replace("\r", "");
+            for (let i = 0; i < Object.keys(variables).length; i++) {
+                if (variables[command.substring(4, command.indexOf("="))] == (Object.keys(variables)[i])) variables[command.substring(4, command.indexOf("="))] = variables[Object.keys(variables)[i]].replace("\r", "");
+            }
+            if (variables[command.substring(4, command.indexOf("="))].substring(0, 6) == "prompt") {
+                variables[command.substring(4, command.indexOf("="))] = prompt(command.substring(command.indexOf("prompt") + 7, command.length).replace("\r", ""));
+            } else if (variables[command.substring(4, command.indexOf("="))].replace("=", "").includes("=") || variables[command.substring(4, command.indexOf("="))].includes("!") || variables[command.substring(4, command.indexOf("="))].includes(">") || variables[command.substring(4, command.indexOf("="))].includes("<")|| variables[command.substring(4, command.indexOf("="))].includes("|")|| variables[command.substring(4, command.indexOf("="))].includes("&")|| variables[command.substring(4, command.indexOf("="))].includes("^")) {
+                let condition = variables[command.substring(4, command.indexOf("="))]
+                let value = lexer.bool(condition);
+                variables[command.substring(4, command.indexOf("="))] = value;
             }
         } else {
-            throw new Error("Invalid command");
+            throw new Error(`Invalid command: '${command.substring(0,command.indexOf(" "))}'`);
         }
     }
 };
+let lexer = {
+bool:function(condition) {
+    let op;
+    let value;
+    if (condition.includes("=")) op = "="
+    else if (condition.includes("!")) op = "!"
+    else if (condition.includes(">")) op = ">"
+    else if (condition.includes("<")) op = "<"
+    else if (condition.includes("|")) op = "|"
+    else if (condition.includes("&")) op = "&"
+    else if (condition.includes("^")) op = "^"
+    if (op != undefined) {
+        let f1 = (condition.substring(0, condition.indexOf(op))).replace("\r", "");
+        let length = condition.length
+        let next = {}
+        let multop = false;
+        //checks for multiple operators
+        if (condition.replace(op, "").includes("=") || condition.replace(op, "").includes("!") || condition.replace(op, "").includes(">") || condition.replace(op, "").includes("<")|| condition.replace(op, "").includes("|")|| condition.replace(op, "").includes("&")|| condition.replace(op, "").includes("^")) {
+            console.log("Multop")
+            let array = []
+            //Checks each operator
+            function check(operator) {
+            if (condition.replace(op,"").includes(operator)) {
+                next[operator] = condition.replace(op, "").indexOf(operator)
+                array.push(next[operator]);
+                //it works
+                if (next[operator] == undefined) next[operator] = 100;
+            }
+            }
+            check("="), check("!"), check(">"), check("<"), check("|"), check("&"), check("^");
+            length = Math.min.apply(Math, array)+1;
+            multop = true;
+        }
+        let f2 = (condition.substring(condition.indexOf(op) + 1, length)).replace("\r", "");
+        let negate = false;
+        if (f1.substring(0, 1) == "`") {
+            f1 = f1.substring(1, f1.length)
+            negate = true;
+        }
+        for (let i = 0; i < Object.keys(variables).length; i++) {
+            if (f1 == (Object.keys(variables)[i])) f1 = variables[Object.keys(variables)[i]]
+            if (f2 == (Object.keys(variables)[i])) f2 = variables[Object.keys(variables)[i]]
+        }
+        if (typeof f1 == "string") f1 = f1.replace("\r", "");
+        if (typeof f2 == "string") f2 = f2.replace("\r", "");
+        if (f1 == "USER") f1 = user.name, console.log(f1);
+        else if (f1 == "MATH") f1 = global;
+        else if (f1 == "DATE") f1 = Date.substring(0, 21)
+        else if (f1 == ";T") f1 = true;
+        else if (f1 == ";F") f1 = false;
+        if (f2 == "USER") f2 = user.name;
+        else if (f2 == "MATH") f2 = global;
+        else if (f2 == "DATE") f2 = Date.substring(0, 21)
+        else if (f2 == ";T") f2 = true;
+        else if (f2 == ";F") f2 = false;
+        if (op == ">" || op == "<") {
+            f1 = Number(f1);
+            f2 = Number(f2);
+            if (f1 != NaN && f2 != NaN) {
+                if (op == ">") {
+                    value = f1 > f2;
+                } else {
+                    value = f1 < f2;
+                }
+            } else {
+                throw new Error("Invalid comparison");
+            }
+        } else if (op == "!" || op == "=") {
+            console.log("! or =");
+            if (op == "=") {
+                value = f1 == f2;
+            } else {
+                value = f1 != f2;
+            }
+        } else if (op == "&" || op == "|" || op == "^") {
+            if (op == "&") value = f1 && f2
+            if (op == "|") value = f1 || f2
+            if (op == "^") {
+                value = f1 ^ f2
+                if (value == 1) value = true
+                else value = false;
+            }
+        } else if (condition.includes(";T")) {
+            value = true;
+        } else if (condition.includes(";F")) {
+            value = false;
+        } else {
+            value = variables[condition];
+            if (typeof value != "boolean") {
+                throw new Error(`Condition '${variables[condition]}' doesn't return boolean value.`);
+            }
+        }
+        if (negate) {
+            value = !value;
+        }
+        if (multop) {
+            if (value) value = ";T"
+            if (!value) value = ";F"
+            condition = condition.replace(condition.substring(0,length), value)
+            console.log(condition);
+            return lexer.bool(condition);
+
+        } else return value;
+    }
+},
+math:function(expr) {
+    return mathf(mathf(expr), true);
+}
+}
 /*
     Entire syntax created by me,
     no external help.
 */
-function mathf() {
+function mathf(math, execute) {
     let f1, f2, f3;
     let output;
     let op;
-    let math = prompt("Math: ");
-    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`)+"\n"+math, (err) => {
+    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) + "\n" + math, (err) => {
         if (err) throw err;
     });
     /**
@@ -577,37 +658,31 @@ function mathf() {
         if (math.includes(op)) {
             getArgArithmetic(op);
             output = f1 + f2;
-            global = output;
         }
         op = "-";
         if (math.includes(op)) {
             getArgArithmetic(op);
             output = f1 - f2;
-            global = output;
         }
         op = "/";
         if (math.includes(op)) {
             getArgArithmetic(op);
             output = f1 / f2;
-            global = output;
         }
         op = "*";
         if (math.includes(op)) {
             getArgArithmetic(op);
             output = f1 * f2;
-            global = output;
         }
         op = "^";
         if (math.includes(op)) {
             getArgArithmetic(op);
             output = Math.pow(f1, f2);
-            global = output;
         }
         op = "%";
         if (math.includes(op)) {
             getArgArithmetic(op);
             output = f1 % f2;
-            global = output;
         }
         op = "% of"
         if (math.includes(op)) {
@@ -627,175 +702,146 @@ function mathf() {
                 f2 = Math.PI
             }
             output = (f1 * f2) / 100
-            global = output;
         }
         op = "sqrt "
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.sqrt(f1);
-            global = output;
         }
         op = "sin ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.sin(f1);
-            global = output;
         }
         op = "cos ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.cos(f1);
-            global = output;
         }
         op = "tan ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.tan(f1);
-            global = output;
         }
         op = "sinh ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.sinh(f1);
-            global = output;
         }
         op = "cosh ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.cosh(f1);
-            global = output;
         }
         op = "tanh ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.tanh(f1);
-            global = output;
         }
         op = "asin ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.asin(f1);
-            global = output;
         }
         op = "acos ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.acos(f1);
-            global = output;
         }
         op = "atan ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.atan(f1);
-            global = output;
         }
         op = "asinh ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.asinh(f1);
-            global = output;
         }
         op = "acosh ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.acosh(f1);
-            global = output;
         }
         op = "atanh ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.atanh(f1);
-            global = output;
         }
         op = "atan2 ";
         if (math.substring(0, op.length) == op) {
             get2Args(op);
             output = Math.atan2(f1, f2);
-            global = output;
         }
         op = "pyth ";
         if (math.substring(0, op.length) == op) {
             get2Args(op);
             output = Math.sqrt(Math.pow(f1, 2) + Math.pow(f2, 2));
-            global = output;
         }
         op = "circum ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = (Math.PI * (2 * f1));
-            global = output;
         }
         op = "radius ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = (f1 / 2 / Math.PI);
-            global = output;
         }
         op = "diam ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = (f1 / Math.PI)
-            global = output;
         }
         op = "circar ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.PI * (Math.pow(f1, 2));
-            global = output;
         }
         op = "sqar ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.pow(f1, 2);
-            global = output;
         }
         op = "rectar ";
         if (math.substring(0, op.length) == op) {
             get2Args(op);
             output = f1 * f2;
-            global = output;
         }
         op = "triangar ";
         if (math.substring(0, op.length) == op) {
             get2Args(op);
             output = (f1 * f2) / 2;
-            global = output;
         }
         op = "cubvol ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.pow(f1, 3);
-            global = output;
         }
         op = "boxvol ";
         if (math.substring(0, op.length) == op) {
             get3Args(op);
             output = f1 * f2 * f3;
-            global = output;
         }
         op = "cylindvol ";
         if (math.substring(0, op.length) == op) {
             get2Args(op);
             output = (Math.PI * (f1 * f1)) * f2;
-            global = output;
         }
         op = "conevol ";
         if (math.substring(0, op.length) == op) {
             get2Args(op);
             output = (Math.PI * (f1 * f1)) * (f2 / 3);
-            global = output;
         }
         op = "triprismvol ";
         if (math.substring(0, op.length) == op) {
             get3Args(op);
             output = (f1 * f2 * f3) / 2;
-            global = output;
         }
         op = "log ";
         if (math.substring(0, op.length) == op) {
             getArg(op);
             output = Math.log(f1);
-            global = output;
         }
         op = "graph ";
         if (math.substring(0, 6) == op) {
@@ -935,15 +981,19 @@ function mathf() {
                 output = Number(math);
             }
         }
+        if (!execute) {
         if (typeof output == "number" || typeof output == "string") {
+            global = output;
             console.log(output);
         }
         if (math == "exit") {
             work();
         } else {
-            mathf();
+            mathf(prompt("Expression: "));
+        }} else {
+            return output;
         }
-    } else {
+    } else if (!execute) {
         work();
     }
 }
