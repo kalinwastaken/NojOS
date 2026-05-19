@@ -1,9 +1,0 @@
-~var x=Hello
-~if (Hello=Hello) {
-~echo idk
-~}
-~$Trying to work on paranthesis for bool
-~var other=Hello=Hello
-~if (Hello=Hello&pen) {
-~echo This is great
-~}
