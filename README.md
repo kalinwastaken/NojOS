@@ -25,57 +25,42 @@ Note that you can use the keywords:
 * USER - To reference username
 * DATE - To reference date.
 ## `~save` and `~read`  
-Saves and reads a .txt file.  
+Saves and reads files.  
 ### Examples:  
-`~read example`  
+`~read example.txt`  
 returns  
 `If you are reading this, ~read works.`  
 which is the content of the example.txt file.  
-`~save example`  
+`~save example.txt`  
 returns prompt:  
 `Text: `  
 Whatever is put in the prompt is printed into the file, it also allows the use of \n in the terminal to represent newline. It may overwrite a file with the existing name.  
 May also use `USER`, `MATH`, and `DATE` in the same way as `~echo`.
 ## `~specs`
 Returns system and network information. Too long to mention briefly here, but gets a majority of data accessible by the `os` module from nodejs.  
-## `~execute`
-References code from .txt file and compiles it and executes it.  
+## `~laika`
+References code from .laika file and compiles it and executes it.  
+## `~install`
+Installs files from installs folder
+## `~run`
+Runs files from installs folder
 ### Examples:  
-`~execute code`  
+`~laika code`  
 returns  
-`If you are reading this, ~execute works`  
-Code in code.txt file is:  
-`~echo If you are reading this, ~execute works` with a \n at the end.  
+`If you are reading this, ~laika works`  
+Code in code.laika file is:  
+`~echo If you are reading this, ~laika works` with a \n at the end.  
 The \n is necessary. Executes code accessible in terminal plus `~if` function, which uses the conditions  
 * `x=y` - x equals y  
 * `x!y` - x is inequal to y  
 * `x>y` - x is bigger than y  
-* `x<y` - x is less than y
+* `x<y` - x is less than y  
+Which is used like this:
+`~if \x=10/ {
+~$Insert code here;
+~}`
 ## `~math`  
-Changes terminal to math terminal.  
-Only allows one function per line.  
-### Syntax  
-Arithmetic is the exact same same as normal syntax, such as:  
-* `10+10`
-* `6^7`
-* `10/1`  
-etc., with or without spaces.  
-
-Basic functions with one argument are written like this:  
-`sqrt 10`  
-this time, with the space required.  
-For other basic functions with two or more arguments, use a comma in-between args.  
-`atan2 10,10`
-
-Graphs are displayed in similar syntax, like:  
-`graph sin`  
-which outputs:  
-![image](https://www.image2url.com/r2/default/images/1777937271333-a2005c69-f52f-4152-b5d6-12e9610271b1.png)  
-Basic functions are allowed and aren't supposed to be use with x.  
-Basic arithmetic is also supported in graph, such as:  
-`graph pi*x`  
-which outputs:  
-![image](https://www.image2url.com/r2/default/images/1777937403686-9c92e147-5438-4e01-adb1-9f79af950e4d.png)
+Changes terminal to math terminal. Allows you to perform calculations. Uses math.js for syntax.
 ## `~dict`
 Gets definition of word from large dictionary .txt file from text after `~dict`.
 ## `~image`
