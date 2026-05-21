@@ -10,6 +10,7 @@ Note: node.js must be installed to run this program, along with the modules:
 * fs
 * prompt-sync
 * terminal-image
+* mathjs
 
 and your package.json's type parameter must be set to `"module"
 ## `~help`
