@@ -1,3 +1,4 @@
+import {sinker} from './installs/sinker.js'
 /*
 The following is a work made with the help of many online resources,
 Every website and person sourced in this project will be listed in what
@@ -7,6 +8,7 @@ they indirectly and directly helped create.
 //    decode,
 //    encode
 //} from "./proccessor.js";
+import {exec} from 'node:child_process';
 import promptSync from 'prompt-sync';
 const prompt = promptSync();
 import os from "node:os";
@@ -44,7 +46,7 @@ function work() {
     if (value != null && value.substring(0, 1) == "~") {
         let command = value.substring(1, value.length)
         if (command == "help") {
-            console.log("A command is defined by '~'\n~help - Write this message\n~dict word - Get definition of word per Webster's English Dictionary\m~shape - Load a .laika shape.\n~math - Run math equations\n~var name=value - Define a variable with a value, can be called in ~echo and ~execute.\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~execute (no .txt) - Execute a .txt file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
+            console.log("A command is defined by '~'\n~help - Write this message\n~dict word - Get definition of word per Webster's English Dictionary\m~shape - Load a .laika shape.\n~math - Run math equations\n~var name=value - Define a variable with a value, can be called in ~echo and .laika files.\n~save filename- Create or overwrite a file. Use \\n for newlines and MATH for the last returned math value.\n~read filename - Read a file\n~laika (no .laika) - Execute a .laika file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~install filename - Installs js file from 'installs' folder\n~run filename - Runs a installed file from installs folder, see above\n~exit - Exit the OS");
         } else if (command == "math") {
             console.log("NojOS-Math");
             mathf(prompt("Expression: "), false);
@@ -68,12 +70,18 @@ function work() {
             });
         } else if (command.substring(0,3) == "run") {
             eval(`${command.substring(4,command.length)}();`);
+        } else if (command.substring(0,9) == "uninstall") {
+            fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/NojOS.js`, readFile(`NojOS-${ver}/NojOS-${ver}/NojOS.js`).replace((`import {${command.substring(10,command.length)}} from './installs/${command.substring(10,command.length)}.js'`),""), (err) => {
+                if (err) throw err;
+            });
+        } else if (command.substring(0,4) == "exec") {
+            exec(command.substring(5,command.length), (error, stdout, stderr) => console.log(stdout));
         } else if (command.substring(0, 5) == "laika") {
             compile(readFile(command.substring(6, command.length) + ".laika"));
         } else if (command.substring(0, 4) == "echo") {
-            command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0, 21));
+            command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0, 21)).replaceAll("\\n","\n");
             for (let v = 0; v < Object.keys(vars).length; v++) {
-                command = command.replaceAll(Object.keys(vars)[v], vars[Object.keys(vars)[v]]);
+                command = command.replaceAll("@"+Object.keys(vars)[v], vars[Object.keys(vars)[v]]);
             }
             console.log(command);
         } else if (command.substring(0, 5) == "image") {
@@ -101,8 +109,11 @@ function work() {
             console.log(output);
         } else if (command.substring(0, 3) == "var") {
             vars[command.substring(4, command.indexOf("="))] = command.substring(command.indexOf("=") + 1, command.length);
+        }else if (command.substring(0,3) == "dir"){
+            console.log(displayFolder(command.substring(4,command.length)));
         } else if (command != "exit" && value != null && command != "image") {
-            console.log(`ERROR: '~${command}' is not defined`);
+            command = command+" "
+            console.log(`ERROR: '~${command.substring(0,command.indexOf(" "))}' is not defined`);
         } else {
             console.log("Thank you for using NojOS");
         }
@@ -111,7 +122,8 @@ function work() {
             console.log("Loading...");
         }
     } else if (value != null) {
-        console.log(`ERROR: '${value}' is invalid syntax, try '~${value}'`);
+        value = value+" "
+        console.log(`ERROR: '${value.substring(0,value.indexOf(" "))}' is invalid syntax, try '~${value.substring(0,value.indexOf(" "))}'`);
         work();
     }
 }
@@ -232,12 +244,47 @@ function specs() {
     }
 }
 //From Mitchell Mudd
+function readFolder(folderPath) {
+    // Source - https://stackoverflow.com/q/51873994 // Posted by user9945420, modified by community. See post 'Timeline' for change history // Retrieved 2026-05-24, License - CC BY-SA 4.0
+    try {
+    const directoryLevelInfo = fs.readdirSync(folderPath, 'utf8').map(item => {
+        const path = folderPath+"/"+item;
+        const isDir = fs.lstatSync(path).isDirectory();
+        const isFile = fs.lstatSync(path).isFile();
+        return {
+            name: item,
+            path: path,
+            isDir: isDir,
+            isFile: isFile
+        };
+    });
+    return directoryLevelInfo;
+    } catch (error) {
+        return error.message;
+    }
+}
+Array.prototype.isEmpty = function() {
+    return (this[0] == undefined);
+}
+function displayFolder(folder) {
+    let data = readFolder(folder);
+    let output;
+    if (data[0] != undefined) {
+    for (let i = 0; i < data.length; i++) {
+        if (data[i].isDir) output += "\n"+data[i].name+" (folder)"
+        else output += "\n"+data[i].name
+    }
+    output = output.replaceAll("undefined\n","");
+    output = output.replaceAll("undefined", "")
+    }
+    return output;
+}
 function readFile(filePath) {
     try {
         const data = fs.readFileSync(filePath);
         return data.toString();
     } catch (error) {
-        return (`ERROR: ${error.message}`);
+        return (`${error.message}`);
     }
 };
 
@@ -308,11 +355,12 @@ function cal() {
     if (daynum.length == 2) {
         num = 1;
     }
+    console.log(daynum.substring(num,num+1))
     if (daynum.substring(num, num + 1) == "1") {
         daynum += "st";
-    } else if (daynum == "2") {
+    } else if (daynum.substring(num, num + 1) == "2") {
         daynum += "nd";
-    } else if (daynum == "3") {
+    } else if (daynum.substring(num, num + 1) == "3") {
         daynum += "rd";
     } else {
         daynum += "th";
@@ -336,10 +384,7 @@ function compile(data) {
         data = data.replace(line + "\n", "");
         if (data.includes("\n")) lines++;
         let command = line.substring(1, line.length);
-        console.log(command);
-        if (command == "help") {
-            console.log("A command is defined by '~'\n~help - Write this message\n~math - Run math equations\n~save filename (no .txt) - Create or overwrite a .txt file. Use \\n for newlines and MATH for the last returned math value.\n~read filename (no .txt) - Read a .txt file\n~specs - Get specifications about the device\n~date - Get time specifications\n~echo STRING - Echo message into console\n~exit - Exit the OS");
-        } else if (command == "math") {
+        if (command == "math") {
             console.log("NojOS-Math");
             mathf();
         } else if (command == "clear") {
@@ -349,13 +394,13 @@ function compile(data) {
             Sourced from:
             https://nodejs.org/api/fs.html#fswritefilesyncfile-data-options
             */
-            fs.writeFileSync(command.substring(5, command.length) + '.txt', prompt("Text: ").replaceAll("\\n", "\n").replaceAll("MATH", global), (err) => {
+            fs.writeFileSync(command.substring(5, command.replace(" ", "").indexOf(" ")), command.substring(command.replace(" ", "").indexOf(" ")+1,command.length).replaceAll("\\n", "\n").replaceAll("MATH", global).replaceAll("USER",user.name), (err) => {
                 if (err) throw err;
             });
         } else if (command.substring(0, 4) == "read") {
-            console.log(readFile(command.substring(5, command.length) + '.txt'));
+            console.log(readFile(command.substring(5, command.length)));
         } else if (command.substring(0, 4) == "echo") {
-            command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", user.name).replaceAll("DATE", Date().substring(0, 21));
+            command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", user.name).replaceAll("DATE", Date().substring(0, 21)).replaceAll("\\n","\n");
             for (let v = 0; v < Object.keys(variables).length; v++) {
                 command = command.replaceAll("@"+Object.keys(variables)[v], variables[Object.keys(variables)[v]]).replaceAll(true, ";T").replaceAll(false, ";F");
             }
@@ -377,14 +422,12 @@ function compile(data) {
                 throw new Error("Failure to start punctuation for if statement");
             }
             let value = lexer.bool(condition);
-            console.log(value);
             if (!value) {
                 let findBrack = data;
                 for (let i = 0; i < punc.if; i++) {
                     findBrack = findBrack.replace("~}\n", "");
                 }
                 data = data.substring(findBrack.indexOf("~}") + 4, data.length);
-                console.log(data);
             }
         } else if (command.substring(0,3) == "for") {
             //Under construction
@@ -590,10 +633,6 @@ math:function(expr) {
     return mathf(expr, true);
 }
 };
-/*
-    Entire syntax created by me,
-    no external help.
-*/
 function mathf(expr, execute) {
     let output = math.evaluate(expr);
     fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) + "\n" + math, (err) => {
