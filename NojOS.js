@@ -22,15 +22,18 @@ const config = { }
 const math = create(all, config)
 let global = "undefined number";
 let vars = {};
-let ver = "1.1.0"
+let ver = "1.1.5"
+let user;
 console.log("                   ....:::::::::::::::::::::::::::::::::::::::::::::::::::::::...                      \n               ..::---------------------------------------------------------------:..               \n            ..:----------------------------------------------------------------------:...           \n         ..::---------------------------------------------------------------------------:..         \n        .:--------------------------------------------------------------------------------:..       \n      ..------------------------------------------------------------------------------------:.      \n    ..:--------------------------------------------------------------------------------------:..    \n    .:-----------------------------------------------------------------------------------------..   \n   .:-------------------------------------------------------------------------------------------:.  \n ..:---------------------------------------------------------------------------------------------.. \n .:----------------------------------------------------------------------------------------------:..\n..:-----------------------------------------------------------------------------------------------:.\n.:------------------------------------------------------------------------------------------------:.\n.:-------------------------------------------------------------------------------------------------.\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--:::::::---------::::::::--------------------:...----------::.....::------------::....:::-::-----:\n.----::. ..-----------..:-----------------------..:-------:...:-----:...:--------..::---::...:-----:\n.------:   .:---------:.:--------------------------------.. :---------:...:-----. :--------..:-----:\n.------:......--------:.:-------------------------------. .:-----------:. .:---:  .---------.:-----:\n.------:.::.  .:------:.:-------::....::-------::.:----.  .-------------.  .----.  .::------:------:\n.------:.:--:. ..-----:.:-----:..:---:...:---::.  .---:.  .-------------:   :----..  ..::----------:\n.------:.:---:.. .:---:.:----:. :------. .:-----  .---:.  :-------------:   :------:.    ..--------:\n.------:.:-----:. .:--:.:----. .--------. .:----  .---:.  .-------------:   :---------:..   .:-----:\n.------:.:------:.. .::.:---:. .--------.  :----  .----.  .-------------:  .----:--------:.. .:----:\n.------:.:--------:. ...:----.  :-------. .-----  .----:. .:------------. .:----.:---------. .:----:\n.------:.:----------..  :----:. .-------..:-----  .-----:...:----------...:-----..---------: .:----:\n.------..:-----------:. :-----:...:----..:------  .-------:...:------:...-------...:------:..:-----:\n.---:::...::----------:.:-------:......:--------  .---------::.......::---------.:::.......:-------:\n.-----------------------------------------------  :------------------------------------------------:\n.----------------------------------------------- .:------------------------------------------------:\n.----------------------------------------:...:::.:-------------------------------------------------:\n.-----------------------------------------::..::---------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.:-------------------------------------------------------------------------------------------------.\n.:------------------------------------------------------------------------------------------------:.\n .:-----------------------------------------------------------------------------------------------:.\n .:----------------------------------------------------------------------------------------------:.\n  .:---------------------------------------------------------------------------------------------.. \n   .:-------------------------------------------------------------------------------------------..  \n    .:----------------------------------------------------------------------------------------:.    \n    ...--------------------------------------------------------------------------------------:..    \n       .:-----------------------------------------------------------------------------------..      \n        ..:-------------------------------------------------------------------------------:.        \n          ..:--------------------------------------------------------------------------:...         \n            ...:--------------------------------------------------------------------::..            \n                ..::-------------------------------------------------------------:..                \n                     ....::::::::::::::::::::::::::::::::::::::::::::::::::.....                    \n");
 console.log(`v${ver}`);
 if (readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`) == "") {
-    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/userdata.json`, `{user:${process.env.USERNAME},\nname:${prompt("Name: ")}}`, (err) => {
+    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/userdata.json`, `{"user":"${process.env.USERNAME}",\n"name":"${prompt("Name: ")}"\n"create":"${Date()}"}`, (err) => {
         if (err) throw err;
     });
+    user = JSON.parse(readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`));
+} else {
+    user = JSON.parse(readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`));
 }
-let user = JSON.parse(readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`));
 console.log(`Hello ${user.name}`);
 console.log(`For help; type ~help`);
 if (readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) == "") {
@@ -48,27 +51,29 @@ async function work() {
         let command = value.substring(1, value.length)
         if (command == "help") {
             console.log(`A command is defined by '~'
-                ~help - Write this message
-                ~dict word - Get definition of word per Webster's English Dictionary
-                ~shape - Load a .laika shape.
-                ~math - Run math equations
-                ~var name=value - Define a variable with a value, can be called in ~echo and .laika files.
-                ~save filename- Create or overwrite a file. Use \\n for newlines and MATH for the last returned math value.
-                ~read filename - Read a file
-                ~laika (no .laika) - Execute a .laika file in NojOS assembly.
-                ~specs - Get specifications about the device
-                ~calendar - Get calendar for current month.
-                ~date - Get time specifications
-                ~echo STRING - Echo message into console
-                ~install filename - Installs js file from 'installs' folder
-                ~run filename - Runs a installed file from installs folder, see above
-                ~image - Reads an image from file
-                ~chyor - Reads .chyor file (NojOS specific)
-                ~otv - Reads .otv file (NojOS specific)
-                ~exit - Exit the OS`);
+~help - Write this message
+~dict word - Get definition of word per Webster's English Dictionary
+~shape - Load a .laika shape.
+~math - Run math equations
+~var name=value - Define a variable with a value, can be called in ~echo and .laika files.
+~save filename- Create or overwrite a file. Use \\n for newlines and MATH for the last returned math value.
+~read filename - Read a file
+~laika (no .laika) - Execute a .laika file in NojOS assembly.
+~specs - Get specifications about the device
+~calendar - Get calendar for current month.
+~date - Get time specifications
+~echo STRING - Echo message into console
+~install filename - Installs js file from 'installs' folder
+~run filename - Runs a installed file from installs folder, see above
+~image - Reads an image from file
+~chyor - Reads .chyor file (NojOS specific)
+~otv - Reads .otv file (NojOS specific)
+~exit - Exit the OS`);
         } else if (command == "math") {
             console.log("NojOS-Math");
             mathf(prompt("Expression: "), false);
+        } else if (command.substring(0,4) == "info") {
+            console.log("Will come soon");
         } else if (command == "clear") {
             console.clear();
             exec("clear");
@@ -89,7 +94,7 @@ async function work() {
                 if (err) throw err;
             });
         } else if (command.substring(0,3) == "run") {
-            eval(`${command.substring(4,command.length)}();`);
+            eval(readFile(command.substring(4,command.length)));
         } else if (command.substring(0,9) == "uninstall") {
             fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/NojOS.js`, readFile(`NojOS-${ver}/NojOS-${ver}/NojOS.js`).replace((`import {${command.substring(10,command.length)}} from './installs/${command.substring(10,command.length)}.js'`),""), (err) => {
                 if (err) throw err;
