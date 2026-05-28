@@ -1,3 +1,4 @@
+import {sinker} from './installs/sinker.js'
 /*
 The following is a work made with the help of many online resources,
 Every website and person sourced in this project will be listed in what
@@ -8,28 +9,29 @@ they indirectly and directly helped create.
 //    encode
 //} from "./proccessor.js";
 import {exec} from 'node:child_process';
+import {spit} from './chyor.js';
+import {play} from './otv.js';
+import {setTimeout} from 'node:timers/promises'
 import promptSync from 'prompt-sync';
 const prompt = promptSync();
 import os from "node:os";
 import fs from "node:fs";
-import terminalImage from "terminal-image";
 import {create, all} from 'mathjs'
+import terminalImage from 'terminal-image'
+/*node NojOS-1.1.0/NojOS-1.1.0/NojOS */
 const config = { }
 const math = create(all, config)
 let global = "undefined number";
 let vars = {};
-let ver = "1.1.0"
+let ver = "1.1.5"
 console.log("                   ....:::::::::::::::::::::::::::::::::::::::::::::::::::::::...                      \n               ..::---------------------------------------------------------------:..               \n            ..:----------------------------------------------------------------------:...           \n         ..::---------------------------------------------------------------------------:..         \n        .:--------------------------------------------------------------------------------:..       \n      ..------------------------------------------------------------------------------------:.      \n    ..:--------------------------------------------------------------------------------------:..    \n    .:-----------------------------------------------------------------------------------------..   \n   .:-------------------------------------------------------------------------------------------:.  \n ..:---------------------------------------------------------------------------------------------.. \n .:----------------------------------------------------------------------------------------------:..\n..:-----------------------------------------------------------------------------------------------:.\n.:------------------------------------------------------------------------------------------------:.\n.:-------------------------------------------------------------------------------------------------.\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--:::::::---------::::::::--------------------:...----------::.....::------------::....:::-::-----:\n.----::. ..-----------..:-----------------------..:-------:...:-----:...:--------..::---::...:-----:\n.------:   .:---------:.:--------------------------------.. :---------:...:-----. :--------..:-----:\n.------:......--------:.:-------------------------------. .:-----------:. .:---:  .---------.:-----:\n.------:.::.  .:------:.:-------::....::-------::.:----.  .-------------.  .----.  .::------:------:\n.------:.:--:. ..-----:.:-----:..:---:...:---::.  .---:.  .-------------:   :----..  ..::----------:\n.------:.:---:.. .:---:.:----:. :------. .:-----  .---:.  :-------------:   :------:.    ..--------:\n.------:.:-----:. .:--:.:----. .--------. .:----  .---:.  .-------------:   :---------:..   .:-----:\n.------:.:------:.. .::.:---:. .--------.  :----  .----.  .-------------:  .----:--------:.. .:----:\n.------:.:--------:. ...:----.  :-------. .-----  .----:. .:------------. .:----.:---------. .:----:\n.------:.:----------..  :----:. .-------..:-----  .-----:...:----------...:-----..---------: .:----:\n.------..:-----------:. :-----:...:----..:------  .-------:...:------:...-------...:------:..:-----:\n.---:::...::----------:.:-------:......:--------  .---------::.......::---------.:::.......:-------:\n.-----------------------------------------------  :------------------------------------------------:\n.----------------------------------------------- .:------------------------------------------------:\n.----------------------------------------:...:::.:-------------------------------------------------:\n.-----------------------------------------::..::---------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.:-------------------------------------------------------------------------------------------------.\n.:------------------------------------------------------------------------------------------------:.\n .:-----------------------------------------------------------------------------------------------:.\n .:----------------------------------------------------------------------------------------------:.\n  .:---------------------------------------------------------------------------------------------.. \n   .:-------------------------------------------------------------------------------------------..  \n    .:----------------------------------------------------------------------------------------:.    \n    ...--------------------------------------------------------------------------------------:..    \n       .:-----------------------------------------------------------------------------------..      \n        ..:-------------------------------------------------------------------------------:.        \n          ..:--------------------------------------------------------------------------:...         \n            ...:--------------------------------------------------------------------::..            \n                ..::-------------------------------------------------------------:..                \n                     ....::::::::::::::::::::::::::::::::::::::::::::::::::.....                    \n");
-if (readFile(`NojOS-${ver}/NojOS-${ver}/userdata.txt`) == "") {
-    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/userdata.txt`, `user:${process.env.USERNAME}\nname:${prompt("Name: ")}`, (err) => {
+if (readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`) == "") {
+    fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/userdata.json`, `{user:${process.env.USERNAME},\nname:${prompt("Name: ")}}`, (err) => {
         if (err) throw err;
     });
 }
-let userdata = readFile(`NojOS-${ver}/NojOS-${ver}/userdata.txt`)
-let user = {
-    name: userdata.substring(userdata.indexOf("name:") + 5, userdata.length)
-}
-console.log(`Hello ${userdata.substring(userdata.indexOf("name:")+5, userdata.length)}`);
+let user = JSON.parse(readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`));
+console.log(`Hello ${user.name}`);
 console.log(`For help; type ~help`);
 if (readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) == "") {
     fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, "#LIB", (err) => {
@@ -37,20 +39,39 @@ if (readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) == "") {
     });
 }
 
-function work() {
+async function work() {
     let value = prompt("Command: ");
     fs.writeFileSync(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) + "\n" + value, (err) => {
-        if (err) throw err;
+       if (err) throw err;
     });
     if (value != null && value.substring(0, 1) == "~") {
         let command = value.substring(1, value.length)
         if (command == "help") {
-            console.log("A command is defined by '~'\n~help - Write this message\n~dict word - Get definition of word per Webster's English Dictionary\m~shape - Load a .laika shape.\n~math - Run math equations\n~var name=value - Define a variable with a value, can be called in ~echo and .laika files.\n~save filename- Create or overwrite a file. Use \\n for newlines and MATH for the last returned math value.\n~read filename - Read a file\n~laika (no .laika) - Execute a .laika file in NojOS assembly.\n~specs - Get specifications about the device\n~calendar - Get calendar for current month.\n~date - Get time specifications\n~echo STRING - Echo message into console\n~install filename - Installs js file from 'installs' folder\n~run filename - Runs a installed file from installs folder, see above\n~exit - Exit the OS");
+            console.log(`A command is defined by '~'
+                ~help - Write this message
+                ~dict word - Get definition of word per Webster's English Dictionary
+                ~shape - Load a .laika shape.
+                ~math - Run math equations
+                ~var name=value - Define a variable with a value, can be called in ~echo and .laika files.
+                ~save filename- Create or overwrite a file. Use \\n for newlines and MATH for the last returned math value.
+                ~read filename - Read a file
+                ~laika (no .laika) - Execute a .laika file in NojOS assembly.
+                ~specs - Get specifications about the device
+                ~calendar - Get calendar for current month.
+                ~date - Get time specifications
+                ~echo STRING - Echo message into console
+                ~install filename - Installs js file from 'installs' folder
+                ~run filename - Runs a installed file from installs folder, see above
+                ~image - Reads an image from file
+                ~chyor - Reads .chyor file (NojOS specific)
+                ~otv - Reads .otv file (NojOS specific)
+                ~exit - Exit the OS`);
         } else if (command == "math") {
             console.log("NojOS-Math");
             mathf(prompt("Expression: "), false);
         } else if (command == "clear") {
             console.clear();
+            exec("clear");
         } else if (command.substring(0, 4) == "save") {
             /*
             Sourced from:
@@ -83,10 +104,23 @@ function work() {
                 command = command.replaceAll("@"+Object.keys(vars)[v], vars[Object.keys(vars)[v]]);
             }
             console.log(command);
-        } else if (command.substring(0, 5) == "image") {
-            terminalImage.file(command.substring(6, command.length)).then((value) => {
-                console.log(value);
-            })
+        } else if (command.substring(0, 5) == "chyor") {
+            console.log("Loading\u001b[25m...")
+            let file = command.substring(6,command.length)
+            let retro = false;
+            if (file.includes("retro")) file = file.replace(" retro", "").replace("retro ",""), retro = true;
+            if (!file.includes(".chyor")) file += ".chyor";
+            console.log(spit(readFile(file),retro));
+        } else if (command.substring(0,3) == "otv") {
+            console.log("Loading...");
+            let time = await play(readFile(command.substring(4,command.length)));
+            let func = await setTimeout(time, work);
+            func();
+        } else if (command.substring(0,5) == "image") {
+            let img = await terminalImage.file((command.substring(6,command.length)))
+            console.log(img);
+            let func = await work;
+            func();
         } else if (command.substring(0, 5) == "shape") {
             shape(command);
         } else if (command == "date") {
@@ -96,7 +130,7 @@ function work() {
         } else if (command.substring(0, 4) == "dict") {
             /*From Matthew Reagan
             https://github.com/matthewreagan/WebstersEnglishDictionary*/
-            let json = readFile(`NojOS-${ver}/NojOS-${ver}/dict.txt`);
+            let json = readFile(`NojOS-${ver}/NojOS-${ver}/dict.json`);
             let dict = JSON.parse(json);
             let output = dict[command.substring(5, command.length)]
             let nums = 1;
@@ -110,20 +144,19 @@ function work() {
             vars[command.substring(4, command.indexOf("="))] = command.substring(command.indexOf("=") + 1, command.length);
         }else if (command.substring(0,3) == "dir"){
             console.log(displayFolder(command.substring(4,command.length)));
-        } else if (command != "exit" && value != null && command != "image") {
+        } else if (command != "exit" && value != null) {
             command = command+" "
             console.log(`ERROR: '~${command.substring(0,command.indexOf(" "))}' is not defined`);
-        } else {
+        } else if (!command.includes("otv")) {
             console.log("Thank you for using NojOS");
         }
-        if (command != "exit" && command != "math" && value != null && command.substring(0, 5) != "image") work();
-        else if (command.substring(0, 5) == "image") {
-            console.log("Loading...");
-        }
+        if (command != "exit" && command != "math" && command.substring(0,3) != "otv" && command.substring(0,5) != "image" && value != null) work();
     } else if (value != null) {
         value = value+" "
         console.log(`ERROR: '${value.substring(0,value.indexOf(" "))}' is invalid syntax, try '~${value.substring(0,value.indexOf(" "))}'`);
         work();
+    } else {
+        console.log("Thank you for using NojOS");
     }
 }
 /**
