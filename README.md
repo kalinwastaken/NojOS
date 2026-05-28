@@ -11,8 +11,10 @@ Note: node.js must be installed to run this program, along with the modules:
 * prompt-sync
 * terminal-image
 * mathjs
+* child_processes
+* timers
 
-and your package.json's type parameter must be set to `"module"
+and your package.json's type parameter must be set to "module"
 ## `~help`
 Prints a help message with a list of commands.
 ## `~echo`
@@ -25,7 +27,7 @@ Note that you can use the keywords:
 * MATH - To reference last mentioned math answer
 * USER - To reference username
 * DATE - To reference date.
-## `~save` and `~read`  
+## `~save` & `~read`  
 Saves and reads files.  
 ### Examples:  
 `~read example.txt`  
@@ -39,12 +41,14 @@ Whatever is put in the prompt is printed into the file, it also allows the use o
 May also use `USER`, `MATH`, and `DATE` in the same way as `~echo`.
 ## `~specs`
 Returns system and network information. Too long to mention briefly here, but gets a majority of data accessible by the `os` module from nodejs.  
-## `~laika`
-References code from .laika file and compiles it and executes it.  
 ## `~install`
 Installs files from installs folder
+##  `~uninstall`
+Whadayya think it does?
 ## `~run`
 Runs files from installs folder
+## `~laika`
+References code from .laika file and compiles it and executes it.  
 ### Examples:  
 `~laika code`  
 returns  
@@ -58,11 +62,14 @@ The \n is necessary. Executes code accessible in terminal plus `~if` function, w
 * `x<y` - x is less than y  
 Which is used like this:
 `~if \x=10/ {
-~$Insert code here;
+~$Insert code here, also this is a comment;
 ~}`
+It is mostly based off of the terminal. Read source code for help.
 ## `~math`  
 Changes terminal to math terminal. Allows you to perform calculations. Uses math.js for syntax.
 ## `~dict`
-Gets definition of word from large dictionary .txt file from text after `~dict`.
+Gets definition of word from large dictionary .json file from text after `~dict`.
+## `~chyor` & `~otv`
+Coming soon...
 ## `~image`
 Prints image of file path after `~image` and then halts. Technical restrictions prevent non-halting.
