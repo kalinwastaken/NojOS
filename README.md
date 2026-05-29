@@ -43,12 +43,8 @@ Whatever is put in the prompt is printed into the file, it also allows the use o
 May also use `USER`, `MATH`, and `DATE` in the same way as `~echo`.
 ## `~specs`
 Returns system and network information. Too long to mention briefly here, but gets a majority of data accessible by the `os` module from nodejs.  
-## `~install`
-Installs files from installs folder
-##  `~uninstall`
-Whadayya think it does?
 ## `~run`
-Runs files from installs folder
+Runs files
 ## `~laika`
 References code from .laika file and compiles it and executes it.  
 ### Examples:  
