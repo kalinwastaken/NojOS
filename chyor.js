@@ -66,7 +66,11 @@ function parse(chyor) {
 export function spit(chyor, retro) {
     try {
     let data = parse(chyor).img, h = parse(chyor).h, w = parse(chyor).w
-    let output;
+    let output,buffer = {
+        l:h,
+        w:w,
+        retro:retro
+    }
     for (let v = 0; v < data.length; v++) {
         let c = data[v]
         // Source - https://stackoverflow.com/a/29241510
@@ -94,7 +98,10 @@ export function spit(chyor, retro) {
         if (v%w == 0) output += "\n";
     }
     output += "\u001b[0m"
-    return output.replace("undefined","");
+    return {
+        img:output.replace("undefined",""),
+        buffer:buffer
+    }
 } catch (error) {
     return error.message;
 }
