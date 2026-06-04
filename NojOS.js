@@ -20,15 +20,12 @@ import fs from "node:fs";
 import {create, all} from 'mathjs';
 import terminalImage from 'terminal-image';
 /*node NojOS-1.1.0/NojOS-1.1.0/NojOS */
-const config = { }
-const math = create(all, config)
-const si = systeminformation;
-let global = "undefined number";
+const config = { }, math = create(all, config), si = systeminformation;
 fs.writeF = function(file, data) {
     console.debug(`WRITE in ${file}`);
     fs.writeFileSync(file, data)
 }
-let vars = {}, ver = "1.1.5", user, logs = [],debug = false;
+let global = "undefined number", vars = {}, ver = "1.1.6", user, logs = [], debug = false, copy = ``;
 console.log("                   ....:::::::::::::::::::::::::::::::::::::::::::::::::::::::...                      \n               ..::---------------------------------------------------------------:..               \n            ..:----------------------------------------------------------------------:...           \n         ..::---------------------------------------------------------------------------:..         \n        .:--------------------------------------------------------------------------------:..       \n      ..------------------------------------------------------------------------------------:.      \n    ..:--------------------------------------------------------------------------------------:..    \n    .:-----------------------------------------------------------------------------------------..   \n   .:-------------------------------------------------------------------------------------------:.  \n ..:---------------------------------------------------------------------------------------------.. \n .:----------------------------------------------------------------------------------------------:..\n..:-----------------------------------------------------------------------------------------------:.\n.:------------------------------------------------------------------------------------------------:.\n.:-------------------------------------------------------------------------------------------------.\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--:::::::---------::::::::--------------------:...----------::.....::------------::....:::-::-----:\n.----::. ..-----------..:-----------------------..:-------:...:-----:...:--------..::---::...:-----:\n.------:   .:---------:.:--------------------------------.. :---------:...:-----. :--------..:-----:\n.------:......--------:.:-------------------------------. .:-----------:. .:---:  .---------.:-----:\n.------:.::.  .:------:.:-------::....::-------::.:----.  .-------------.  .----.  .::------:------:\n.------:.:--:. ..-----:.:-----:..:---:...:---::.  .---:.  .-------------:   :----..  ..::----------:\n.------:.:---:.. .:---:.:----:. :------. .:-----  .---:.  :-------------:   :------:.    ..--------:\n.------:.:-----:. .:--:.:----. .--------. .:----  .---:.  .-------------:   :---------:..   .:-----:\n.------:.:------:.. .::.:---:. .--------.  :----  .----.  .-------------:  .----:--------:.. .:----:\n.------:.:--------:. ...:----.  :-------. .-----  .----:. .:------------. .:----.:---------. .:----:\n.------:.:----------..  :----:. .-------..:-----  .-----:...:----------...:-----..---------: .:----:\n.------..:-----------:. :-----:...:----..:------  .-------:...:------:...-------...:------:..:-----:\n.---:::...::----------:.:-------:......:--------  .---------::.......::---------.:::.......:-------:\n.-----------------------------------------------  :------------------------------------------------:\n.----------------------------------------------- .:------------------------------------------------:\n.----------------------------------------:...:::.:-------------------------------------------------:\n.-----------------------------------------::..::---------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.:-------------------------------------------------------------------------------------------------.\n.:------------------------------------------------------------------------------------------------:.\n .:-----------------------------------------------------------------------------------------------:.\n .:----------------------------------------------------------------------------------------------:.\n  .:---------------------------------------------------------------------------------------------.. \n   .:-------------------------------------------------------------------------------------------..  \n    .:----------------------------------------------------------------------------------------:.    \n    ...--------------------------------------------------------------------------------------:..    \n       .:-----------------------------------------------------------------------------------..      \n        ..:-------------------------------------------------------------------------------:.        \n          ..:--------------------------------------------------------------------------:...         \n            ...:--------------------------------------------------------------------::..            \n                ..::-------------------------------------------------------------:..                \n                     ....::::::::::::::::::::::::::::::::::::::::::::::::::.....                    \n");
 console.log(`v${ver}`);
 //console.debug() redefinition
@@ -79,8 +76,10 @@ String.prototype.filename = function() {
 async function work() {
     let value = prompt("Command: ");
     console.debug(`COMMAND ${value}`);
+    try {
     fs.writeF(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) + "\n" + value)
     if (value != null && value.substring(0, 1) == "~") {
+        value = value.toLowerCase();
         let command = value.substring(1, value.length)
         if (command == "help") {
             console.log(`A command is defined by '~'
@@ -123,7 +122,6 @@ async function work() {
             if (size >= 1024) size = size/1024, tag = "GB";
             if (size >= 1024) size = size/1024, tag = "TB";
             size = String(Math.round(size*100)/100);
-            try {
             const stat = fs.lstatSync(command.substring(10,command.length))
             if (!stat.isDirectory()) {
             const ext = JSON.parse(readFile("NojOS-1.1.5/NojOS-1.1.5/ext.json"))
@@ -136,10 +134,6 @@ async function work() {
             console.log(`Created ${stat.mtime}`);
             } else {
                 throw new Error("Unable to read directory as file")
-            }
-            } catch (err) {
-                console.debug(`ERROR`)
-                console.log(err.message);
             }
         } else if (command == "device-info") {
             try {
@@ -162,18 +156,41 @@ async function work() {
         } else if (command == "clear") {
             console.debug("CLEAR")
             console.clear();
+        //File manipulation commands:
         } else if (command.substring(0, 4) == "save") {
             /*
             Sourced from:
             https://nodejs.org/api/fs.html#fswriteFfile-data-options
             */
             console.debug("SAVE FILE")
-            fs.writeF(command.substring(5, command.length), prompt("Text: ").replaceAll("\\n", "\n"))
-        } else if (command == "calendar") {
-            cal();
+            let text = "";
+            function mod() {
+                let ask = "\n"+prompt("");
+                if (ask != '\nfin') {
+                    text += ask
+                    text = text.replace("`fin","fin");
+                    mod()
+                }
+            }
+            mod();
+            text = text.replace("\n","")
+            fs.writeF(command.substring(5, command.length), text)
         } else if (command.substring(0, 4) == "read") {
             console.debug("READ FILE")
             console.log(readFile(command.substring(5, command.length)));
+        } else if (command.substring(0,4) == "copy") {
+            copy = command.substring(5,command.length);
+        } else if (command.substring(0,5) == "paste") {
+            let name = copy;
+            if (command.length > 5) name = command.substring(6,command.length)
+            fs.writeF(name, readFile(copy))
+        } else if (command.substring(0,6) == "rename") {
+            let oldPath = command.substring(7,command.replace(" ","").indexOf(" ")+1)
+            let newPath = command.substring(command.replace(" ","").indexOf(" ")+1,command.length);
+            console.log(oldPath,newPath);
+            fs.renameSync(oldPath, newPath)
+        } else if (command.substring(0,3) == "del") {
+            fs.unlinkSync(command.substring(4,command.length));
         } else if (command.substring(0,3) == "run") {
             console.debug("EVAL FILE");
             eval(readFile(command.substring(4,command.length)));
@@ -184,12 +201,10 @@ async function work() {
             console.debug("EXECUTE LAIKA")
             let file = command.substring(6, command.length);
             if (file.substring(file.length-6,file.length) != ".laika") file  = file + ".laika";
-            try {
             compile(readFile(file));
-            } catch (err) {
-                console.debug(`ERROR`)
-                console.log(err.message);
-            }
+            console.debug(`ERROR`)
+        } else if (command == "calendar") {
+            cal();
         } else if (command.substring(0, 4) == "echo") {
             console.debug(`ECHO ${command.substring(5,command.length)}`)
             command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0, 21)).replaceAll("\\n","\n");
@@ -198,7 +213,6 @@ async function work() {
             }
             console.log(command);
         } else if (command.substring(0, 5) == "chyor") {
-            try {
             console.log("Loading\u001b[25m...")
             let file = command.substring(6,command.length)
             let retro = false;
@@ -211,10 +225,6 @@ async function work() {
             console.debug(`LENGTH ${buffer.l}`);
             console.debug(`WIDTH ${buffer.w}`);
             console.debug(`RETRO ${retro}`);
-            } catch (err) {
-                console.debug(`ERROR`)
-                console.log(err.message);
-            }
         } else if (command.substring(0,3) == "otv") {
             console.debug(`OTV ${command.substring(4,command.length)}`)
             console.log("Loading...");
@@ -250,8 +260,12 @@ async function work() {
             vars[command.substring(4, command.indexOf("="))] = command.substring(command.indexOf("=") + 1, command.length);
         }else if (command.substring(0,3) == "dir"){
             console.log(displayFolder(command.substring(4,command.length)));
+        } else if (command == "shutdown") {
+            exec('shutdown /l', (error,stdout,stderr) => {
+                console.log(stdout);
+            });
         } else if (command == "node") {
-            //node(prompt(""));
+            node(prompt(""));
         } else if (command != "exit" && value != null) {
             console.debug(`ERROR`)
             let com = command;
@@ -276,8 +290,8 @@ async function work() {
                 return count;
             };
             for (let i = 0; i < commands.length; i++) {
-                sim.push(solution(commands[i],command));
-                obj[solution(commands[i],command)] = commands[i];
+                sim.push(solution(commands[i],com));
+                obj[solution(commands[i],com)] = commands[i];
             }
             let max = Math.max.apply(Math, sim);
             let guess = obj[max];
@@ -288,7 +302,7 @@ async function work() {
         } else if (!command.includes("otv")) {
             console.log("Thank you for using NojOS");
         }
-        if (command != "exit" && command != "math" && command.substring(0,3) != "otv" && command.substring(0,5) != "image" && command != 'device-info' && value != null && command != "node") work();
+        if (command != "exit" && command != "math" && command.substring(0,3) != "otv" && command.substring(0,5) != "image" && command != 'device-info' && value != null && command != "node" && command != "shutdown") work();
     } else if (value != null) {
         console.debug(`ERROR`)
         value = value+" "
@@ -297,6 +311,8 @@ async function work() {
     } else {
         console.debug(`EXIT`)
         console.log("Thank you for using NojOS");
+    }} catch (err) {
+        console.log(err.message);
     }
 }
 /**
@@ -495,6 +511,7 @@ function cal() {
         }
         return today;
     }
+    //I'm too lazy to do a procedurally generated calendar;
     /**
      * Checks if first day of month is day, and if so, prints accordingly.
      * @param {string} day Sun, Mon, Tue, etc.
@@ -535,11 +552,11 @@ function cal() {
     if (daynum.length == 2) {
         num = 1;
     }
-    if (daynum.substring(num, num + 1) == "1") {
+    if (daynum.substring(num, num + 1) == "1"&& daynum != "11") {
         daynum += "st";
-    } else if (daynum.substring(num, num + 1) == "2") {
+    } else if (daynum.substring(num, num + 1) == "2" && daynum != "12") {
         daynum += "nd";
-    } else if (daynum.substring(num, num + 1) == "3") {
+    } else if (daynum.substring(num, num + 1) == "3"&& daynum != "13") {
         daynum += "rd";
     } else {
         daynum += "th";
@@ -834,14 +851,18 @@ math:function(expr) {
 };
 function mathf(expr, execute) {
     if (expr != "exit" && expr != null) {
-    let output = math.evaluate(expr);
+    let output;
+    try {
+    output = math.evaluate(expr);
+    } catch (err) {
+        output = err.message;
+    }
     global = output;
     fs.writeF(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) + "\n" + math)
     if (!execute) {
         console.debug(`REPL MATH`);
-        if (typeof output == "number" && output != NaN) {
-            console.log(output);
-        }
+        console.log(output);
+        mathf(prompt("Expression: ", false));
     } else {
         return output;
     }} else {
