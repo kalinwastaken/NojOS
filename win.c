@@ -1,3 +1,5 @@
+//Hi, this is a demo C file of a js program that automatically makes windows.
+//Study this to see if the program fucks up in any sensible way
 #include <windows.h>
 
 const char g_szClassName[] = "myWindowClass";
