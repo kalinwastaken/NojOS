@@ -1,5 +1,7 @@
 #include <windows.h>
-
+#include <winuser.h>
+#define ID_FILE_MESSAGE 9001
+#define ID_FILE_EXIT 9002
 const char g_szClassName[] = "myWindowClass";
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -14,12 +16,41 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         else
             MessageBox(hwnd, "Could not load large icon!", "Error", MB_OK | MB_ICONERROR);
         
+        
+HMENU hMenu, hSubMenu;
+hMenu = CreateMenu();
+        hSubMenu = CreatePopupMenu();
+        
+        AppendMenu(hSubMenu, MF_STRING, ID_FILE_MESSAGE, "Message");
+        AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, "Exit");
+        AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, "File");
+        hSubMenu = CreatePopupMenu();
+        
+        AppendMenu(hSubMenu, MF_STRING, ID_FILE_EXIT, "Exit");
+        AppendMenu(hMenu, MF_STRING | MF_POPUP, (UINT)hSubMenu, "Exit");
+SetMenu(hwnd, hMenu);
             }
         break;
+        case WM_COMMAND:
+            switch(LOWORD(wParam))
+        {
+            
+        case ID_FILE_MESSAGE:
+            MessageBox(hwnd, "A message from a menu? How peculiar!", "Wow!", MB_OK | MB_ICONINFORMATION);
+        break;
+        
+        case ID_FILE_EXIT:
+            DestroyWindow(hwnd);
+        break;
+        
+        }
+        break;
+        case WM_RBUTTONDOWN:
+        
+        break;
         case WM_LBUTTONDOWN:
- {
-       MessageBox(hwnd, "This is a basic example of Mukha software. If you are reading this, you debugged this by yourself. Why?", "Mukha", MB_OK | MB_ICONINFORMATION);
-            }
+        
+            MessageBox(hwnd, "This is an example of Mukha software.", "Mukha", MB_OK | MB_ICONINFORMATION);
         break;
         case WM_CLOSE:
             DestroyWindow(hwnd);
