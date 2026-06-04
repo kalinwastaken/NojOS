@@ -23,7 +23,7 @@ export async function play(file) {
         if (i == 0) time = 0;
         const grab = await setTimeout(time, frames[i]);
         console.clear();
-        console.log(spit(grab));
+        console.log(spit(grab).img);
     }
     return elapsed;
 }
