@@ -3,7 +3,8 @@
 _Screenshot from NojOS terminal as of 04.05.2026_  
 This is in purpose to document all commands in detail in the NojOS terminal and installation.
 # But, what is this?
-This is the interface for an OS project which will be done way in the future; not an OS. For right now, this is just a test to see how far I can stretch JavaScript as a language to the point it can act as an interface for other programs on the computer.
+This is the interface for an OS project which will be done way in the future; not an OS. For right now, this is just a test to see how far I can stretch JavaScript as a language to the point it can act as an interface for other programs on the computer. tl;dr:
+Fucking around and finding out.
 ## Installation and Running
 First, move file to home directory for proper use.
 To run NojOS, use must run `node NojOS-VERSION/NojOS-VERSION/NojOS.js`  
