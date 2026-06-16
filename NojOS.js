@@ -8,10 +8,7 @@ Second note:
 This project is an attempt to reconnect to older software;
 and in that, try to solve problems that have already been solved.
 Reinvent the wheel, so to speak.
-The bad code in this is on purpose; the calendar code looks wrong because
-some code should be slow. Not everything has to be super-duper optimized and
-do 3000 computations a millisecond. I'm exagerrating a bit but still. Dumb devices are fun and it easier for forkers
-to fuck with program.
+It helps us understand the systems that make the world run.
 */
 //import {
 //    decode,
