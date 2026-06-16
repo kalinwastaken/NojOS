@@ -142,11 +142,11 @@ let cmd = {
         func:async function(command, args) {
             let enter = prompt('Warning, this operation may turn version into unfinished version,\nContinue Y/N: ')
             const data = await got(`https://raw.githubusercontent.com/kalinwastaken/NojOS/refs/heads/main/NojOS.js`);
-            if (enter == "Y" && data.body.substring(0,3) != "//U") {
+            if (enter == "Y" && data.body.substring(0,3) != "//U" && data.body == readFile(`NojOS-${ver}/NojOS-${ver}/NojOS.js`)) {
                 fs.writeF(`NojOS-${ver}/NojOS-${ver}/NojOS.js`, data.body)
             } else if (data.body.substring(0,3) == "//U") {
-                throw new Error("File is marked with uninstall marker, and cannot be installed")
-            }
+                console.log("\u001b[31mERROR:\u001b[0m File is marked with uninstall marker, and cannot be installed")
+            } else if (data.body == readFile(`NojOS-${ver}/NojOS-${ver}/NojOS.js`)) console.log("File is up-to-date");
             await work();
         },
         async:true
