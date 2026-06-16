@@ -3,40 +3,81 @@ The following is a work made with the help of many online resources,
 Every website and person sourced in this project will be listed in what
 they indirectly and directly helped create, mostly via SO comments.
 Thank you all.
+---------------------------------
+Second note:
+This project is an attempt to reconnect to older software;
+and in that, try to solve problems that have already been solved.
+Reinvent the wheel, so to speak.
+The bad code in this is on purpose; the calendar code looks wrong because
+some code should be slow. Not everything has to be super-duper optimized and
+do 3000 computations a millisecond. I'm exagerrating a bit but still. Dumb devices are fun and it easier for forkers
+to fuck with program.
 */
 //import {
 //    decode,
 //    encode
 //} from "./proccessor.js";
-import {exec} from 'node:child_process';
+import {exec, spawn} from 'node:child_process';
 import {spit} from './chyor.js';
+import {mukha} from './mukha.js'
 import {play} from './otv.js';
 import {setTimeout} from 'node:timers/promises'
 import promptSync from 'prompt-sync';
 import systeminformation from 'systeminformation';
 const prompt = promptSync();
 import os from "node:os";
-import fs from "node:fs";
+import fs, { readFileSync } from "node:fs";
 import {create, all} from 'mathjs';
 import terminalImage from 'terminal-image';
-/*node NojOS-1.1.0/NojOS-1.1.0/NojOS */
-const config = { }, math = create(all, config), si = systeminformation;
-fs.writeF = function(file, data) {
-    console.debug(`WRITE in ${file}`);
-    fs.writeFileSync(file, data)
-}
-let global = "undefined number", vars = {}, ver = "1.1.6", user, logs = [], debug = false, copy = ``;
-console.log("                   ....:::::::::::::::::::::::::::::::::::::::::::::::::::::::...                      \n               ..::---------------------------------------------------------------:..               \n            ..:----------------------------------------------------------------------:...           \n         ..::---------------------------------------------------------------------------:..         \n        .:--------------------------------------------------------------------------------:..       \n      ..------------------------------------------------------------------------------------:.      \n    ..:--------------------------------------------------------------------------------------:..    \n    .:-----------------------------------------------------------------------------------------..   \n   .:-------------------------------------------------------------------------------------------:.  \n ..:---------------------------------------------------------------------------------------------.. \n .:----------------------------------------------------------------------------------------------:..\n..:-----------------------------------------------------------------------------------------------:.\n.:------------------------------------------------------------------------------------------------:.\n.:-------------------------------------------------------------------------------------------------.\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--:::::::---------::::::::--------------------:...----------::.....::------------::....:::-::-----:\n.----::. ..-----------..:-----------------------..:-------:...:-----:...:--------..::---::...:-----:\n.------:   .:---------:.:--------------------------------.. :---------:...:-----. :--------..:-----:\n.------:......--------:.:-------------------------------. .:-----------:. .:---:  .---------.:-----:\n.------:.::.  .:------:.:-------::....::-------::.:----.  .-------------.  .----.  .::------:------:\n.------:.:--:. ..-----:.:-----:..:---:...:---::.  .---:.  .-------------:   :----..  ..::----------:\n.------:.:---:.. .:---:.:----:. :------. .:-----  .---:.  :-------------:   :------:.    ..--------:\n.------:.:-----:. .:--:.:----. .--------. .:----  .---:.  .-------------:   :---------:..   .:-----:\n.------:.:------:.. .::.:---:. .--------.  :----  .----.  .-------------:  .----:--------:.. .:----:\n.------:.:--------:. ...:----.  :-------. .-----  .----:. .:------------. .:----.:---------. .:----:\n.------:.:----------..  :----:. .-------..:-----  .-----:...:----------...:-----..---------: .:----:\n.------..:-----------:. :-----:...:----..:------  .-------:...:------:...-------...:------:..:-----:\n.---:::...::----------:.:-------:......:--------  .---------::.......::---------.:::.......:-------:\n.-----------------------------------------------  :------------------------------------------------:\n.----------------------------------------------- .:------------------------------------------------:\n.----------------------------------------:...:::.:-------------------------------------------------:\n.-----------------------------------------::..::---------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.:-------------------------------------------------------------------------------------------------.\n.:------------------------------------------------------------------------------------------------:.\n .:-----------------------------------------------------------------------------------------------:.\n .:----------------------------------------------------------------------------------------------:.\n  .:---------------------------------------------------------------------------------------------.. \n   .:-------------------------------------------------------------------------------------------..  \n    .:----------------------------------------------------------------------------------------:.    \n    ...--------------------------------------------------------------------------------------:..    \n       .:-----------------------------------------------------------------------------------..      \n        ..:-------------------------------------------------------------------------------:.        \n          ..:--------------------------------------------------------------------------:...         \n            ...:--------------------------------------------------------------------::..            \n                ..::-------------------------------------------------------------:..                \n                     ....::::::::::::::::::::::::::::::::::::::::::::::::::.....                    \n");
-console.log(`v${ver}`);
+let global = "undefined number", vars = {}, ver = "1.1.5", user, debug = false, copy = ``, logs =  []
+let CD = ""
 //console.debug() redefinition
 console.debug = function(x) {
     if (debug) console.log(x);
     logs.push(x);
 }
+console.debug("START-UP")
+/*node NojOS-1.1.5/NojOS-1.1.5/NojOS */
+const config = { }, math = create(all, config), si = systeminformation;
+fs.writeF = function(file, data) {
+    console.debug(`WRITE in ${file}`);
+    fs.writeFileSync(file, data)
+}
+if (process.cwd() != os.homedir() || process.argv[1] != `${os.homedir()}\\NojOS-${ver}\\NojOS-${ver}\\NojOS`) {
+    console.log(`Oh no!
+It seems you have opened NojOS-${ver} outside of your home directory.
+Restart your terminal inside your home directory and move NojOS-${ver} to your home directory,
+${os.homedir()}
+This program uses the home directory to access files systematically.`)
+    process.exit(0);
+}
+let logo = ("                   ....:::::::::::::::::::::::::::::::::::::::::::::::::::::::...                      \n               ..::---------------------------------------------------------------:..               \n            ..:----------------------------------------------------------------------:...           \n         ..::---------------------------------------------------------------------------:..         \n        .:--------------------------------------------------------------------------------:..       \n      ..------------------------------------------------------------------------------------:.      \n    ..:--------------------------------------------------------------------------------------:..    \n    .:-----------------------------------------------------------------------------------------..   \n   .:-------------------------------------------------------------------------------------------:.  \n ..:---------------------------------------------------------------------------------------------.. \n .:----------------------------------------------------------------------------------------------:..\n..:-----------------------------------------------------------------------------------------------:.\n.:------------------------------------------------------------------------------------------------:.\n.:-------------------------------------------------------------------------------------------------.\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--:::::::---------::::::::--------------------:...----------::.....::------------::....:::-::-----:\n.----::. ..-----------..:-----------------------..:-------:...:-----:...:--------..::---::...:-----:\n.------:   .:---------:.:--------------------------------.. :---------:...:-----. :--------..:-----:\n.------:......--------:.:-------------------------------. .:-----------:. .:---:  .---------.:-----:\n.------:.::.  .:------:.:-------::....::-------::.:----.  .-------------.  .----.  .::------:------:\n.------:.:--:. ..-----:.:-----:..:---:...:---::.  .---:.  .-------------:   :----..  ..::----------:\n.------:.:---:.. .:---:.:----:. :------. .:-----  .---:.  :-------------:   :------:.    ..--------:\n.------:.:-----:. .:--:.:----. .--------. .:----  .---:.  .-------------:   :---------:..   .:-----:\n.------:.:------:.. .::.:---:. .--------.  :----  .----.  .-------------:  .----:--------:.. .:----:\n.------:.:--------:. ...:----.  :-------. .-----  .----:. .:------------. .:----.:---------. .:----:\n.------:.:----------..  :----:. .-------..:-----  .-----:...:----------...:-----..---------: .:----:\n.------..:-----------:. :-----:...:----..:------  .-------:...:------:...-------...:------:..:-----:\n.---:::...::----------:.:-------:......:--------  .---------::.......::---------.:::.......:-------:\n.-----------------------------------------------  :------------------------------------------------:\n.----------------------------------------------- .:------------------------------------------------:\n.----------------------------------------:...:::.:-------------------------------------------------:\n.-----------------------------------------::..::---------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.--------------------------------------------------------------------------------------------------:\n.:-------------------------------------------------------------------------------------------------.\n.:------------------------------------------------------------------------------------------------:.\n .:-----------------------------------------------------------------------------------------------:.\n .:----------------------------------------------------------------------------------------------:.\n  .:---------------------------------------------------------------------------------------------.. \n   .:-------------------------------------------------------------------------------------------..  \n    .:----------------------------------------------------------------------------------------:.    \n    ...--------------------------------------------------------------------------------------:..    \n       .:-----------------------------------------------------------------------------------..      \n        ..:-------------------------------------------------------------------------------:.        \n          ..:--------------------------------------------------------------------------:...         \n            ...:--------------------------------------------------------------------::..            \n                ..::-------------------------------------------------------------:..                \n                     ....::::::::::::::::::::::::::::::::::::::::::::::::::.....                    \n");
+//gay shit
+if (Date().substring(4,7) == "Jun") {
+    let colors = [[255,0,0],[255,127,0],[255,255,0],[0,127,0],[0,0,200],[100,0,130]]
+    let out = logo;
+    for (let i = 0; i < 6; i++) {
+        let color = colors[i]
+        color = color[0]+";"+color[1]+";"+color[2]
+        String.prototype.index9 = function(search) {
+            let thi = this
+            for (let i = 0; i < 8; i++) {
+                thi = thi.replace(search,"")
+            }
+            if (thi.indexOf(search)+8 == 7) {return this.length}
+            else return thi.indexOf(search)+8
+        }
+        logo = logo.replace(out.substring(0,out.index9("\n")).replaceAll("undefined",""),`\u001b[38;2;${color}m${out.substring(0,out.index9("\n")).replaceAll("undefined","")}`)
+        out = out.replace(out.substring(0, out.index9('\n')))
+    }
+}
+console.log(logo += "\u001b[0m")
+console.log(`v${ver}`);
+console.log(`\u001b]8;;https://www.pcrf.net/\u001b\\Stand with \u001b[31mPa\u001b[32mles\u001b[0mti\u001b[38;2;30;30;30mne\u001b]8;;\u001b\\\u001b[0m`)
 //Looks nicer if i use console;
 console.beep = function() {process.stdout.write('\u0007')}
 if (readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`) == "") {
-    fs.writeF(`NojOS-${ver}/NojOS-${ver}/userdata.json`, `{\n"user":"${process.env.USERNAME}",\n"name":"${prompt("Name: ")}",\n"create":"${Date()}"}`)
+    fs.writeF(`NojOS-${ver}/NojOS-${ver}/userdata.json`, `{\n"user":"${process.env.USERNAME}",\n"name":"${prompt("Name: ")}",\n"create":"${Date()}",\n"correct":"order", "cmd":{}}`)
     console.debug("CREATE USERDATA")
     user = JSON.parse(readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`));
 } else user = JSON.parse(readFile(`NojOS-${ver}/NojOS-${ver}/userdata.json`));
@@ -73,47 +114,92 @@ String.prototype.filename = function() {
     }
     return this.substring(period, this.length);
 }
-async function work() {
-    let value = prompt("Command: ");
-    console.debug(`COMMAND ${value}`);
-    try {
-    fs.writeF(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) + "\n" + value)
-    if (value != null && value.substring(0, 1) == "~") {
-        value = value.toLowerCase();
-        let command = value.substring(1, value.length)
-        if (command == "help") {
-            console.log(`A command is defined by '~'
-~help - Write this message
-~dict word - Get definition of word per Webster's English Dictionary
-~shape - Load a .laika shape.
-~math - Run math equations
-~var name=value - Define a variable with a value, can be called in ~echo and .laika files.
-~save filename- Create or overwrite a file. Use \\n for newlines and MATH for the last returned math value.
-~read filename - Read a file
-~laika - Execute a .laika file in NojOS assembly.
-~specs - Get specifications about the device
-~calendar - Get calendar for current month.
-~date - Get time specifications
-~echo STRING - Echo message into console
-~run filename - Runs a .js file
-~image - Reads an image from file
-~chyor - Reads .chyor file (NojOS specific)
-~otv - Reads .otv file (NojOS specific)
-~exit - Exit the OS`);
-        } else if (command == "math") {
-            console.log("NojOS-Math");
+//Forkers note, most base commands are based off of the substring system,
+//though arrays are supported they are not standard
+let help = {
+    "help":" - Write this message",
+    "dict":" word - Get definition of word per Webster's English Dictionary",
+    "shape":" - Load a .laika shape.",
+    "math":' - Run math equations',
+    "var":" name=value - Define a variable with a value, can be called in ~echo and .laika files.",
+    "save":" filename- Create or overwrite a file. Use \\n for newlines and MATH for the last returned math value.",
+    "read":" filename - Read a file",
+    "laika":" - Execute a .laika file in NojOS assembly.",
+    "specs":" - Get specifications about the device",
+    "calendar":" - Get calendar for current month.",
+    "date":" - Get time specifications",
+    "echo":" string - Echo message into console",
+    "run":"filename - Runs a .js file",
+    "image":" - Reads an image from file",
+    "chyor":" - Reads .chyor file (NojOS specific)",
+    "otv":" - Reads .otv file (NojOS specific)",
+    "exit":" - Exit the OS, use ^C to exit quickly"
+
+}
+let cmd = {
+    cd:{
+        func:function(command, args){
+            if (args[1] != '~') {
+            if (fs.existsSync(args[1]) && fs.lstatSync(args[1]).isDirectory()) {
+                CD += args[1]+"/";
+            } else if (!fs.existsSync(args[1])) {
+                throw new Error(`'${args[1]}' does not exist.`)
+            } else {
+                throw new Error(`'${args[1]}' is not a directory.`)
+            }
+        } else CD = '';
+        },
+        async:false
+    },
+    help:{
+    func:function(command, array){
+        try {
+            if (command == "help") {
+                for (let i = 0; i < Object.keys(help).length; i++) {
+                    console.log(`~${Object.keys(help)[i]}${help[Object.keys(help)[i]]}`)
+                }
+            } else {
+                console.log(`~${array[1]}${help[array[1]]}`)
+            }
+        } catch (err) {
+            console.log(err.message);
+        }
+    },
+    async:false
+    },
+    lscmd:{
+        func:function(command){
+            for (let i = 0; i < Object.keys(cmd).length; i++) {
+                console.log(Object.keys(cmd)[i]);
+            }
+        },
+        async:false
+    },
+    math:{
+        func:function(command){
             console.debug("ENTER MATH REPL");
-            mathf(prompt("Expression: "), false);
-        } else if (command == "beep") {
+            mathf(prompt(`\u001b[31;1m${user.name}@${process.env.USERNAME}/${CD}/math\u001b[0m - `), false);
+        },
+        async:true
+    },
+    beep:{
+        func:function(){
             console.beep();
-        //Info commands:
-        } else if (command.substring(0,9) == "prog-info") {
+        },
+        async:false
+    },
+    "prog-info":{
+        func:function(command){
             console.debug("PROG INFO");
             console.log(`Version: v${ver}`);
             console.log(`Username: ${user.name}`)
             console.log("Logs:")
             console.log("  "+logs.toString().replaceAll(",","\n  "));
-        } else if  (command.substring(0,9)=="file-info") {
+        },
+        async:false
+    },
+    "file-info":{
+        func:function(command) {
             console.debug("FILE INFO");
             let size = readFile(command.substring(10,command.length)).length;
             let tag = "bytes"
@@ -124,7 +210,7 @@ async function work() {
             size = String(Math.round(size*100)/100);
             const stat = fs.lstatSync(command.substring(10,command.length))
             if (!stat.isDirectory()) {
-            const ext = JSON.parse(readFile("NojOS-1.1.5/NojOS-1.1.5/ext.json"))
+            const ext = JSON.parse(readFile(`NojOS-${ver}/NojOS-${ver}/ext.json`))
             console.log(`Name: ${command.substring(10,command.length).filename()}`);
             console.log(`Type: ${ext[command.substring(10,command.length).filename().ext()]}`.replace("undefined",`File "${command.substring(10,command.length).filename().ext().replace(".","").toUpperCase()}"`))
             console.log(`Size: ${size} ${tag}`);
@@ -133,35 +219,54 @@ async function work() {
             console.log(`Last modified by system ${stat.ctime}`);
             console.log(`Created ${stat.mtime}`);
             } else {
-                throw new Error("Unable to read directory as file")
+                throw new Error("\u001b[31mERROR:\u001b[0m Unable to read directory as file")
             }
-        } else if (command == "device-info") {
-            try {
-            specs();
-            } catch (err) {
-                console.debug(`ERROR`)
-                console.log(err.message);
-            }
-        //Joke commands:
-            //0x414, 0x43B, 0x44F, 0x20, 0x421, 0x43E, 0x43B, 0x44F, 0x20, 0x42F, 0x441, 0x43E, 0x43D, 0x43E, 0x432, 0x43D, 0x430, 0x2F, 0x432, 0x438, 0x447, 0x20, 0x41C, 0x435, 0x43D, 0x437, 0x438, 0x441
-            } else if (command.substring(0,7) == "yummers") {
-                console.debug("JOKE-СОЛЯ");
-                console.log(`${command.substring(8,command.length)}\nYummers!`)
-            } else if (command.substring(0,2).toLowerCase() == "ai") {
-                console.debug("JOKE-ИИ");
-                console.log("No.");
-        } else if (command.substring(0,5) == "debug") {
+        },
+        async:false
+    },
+    "device-info":{
+        func:async function(command) {
+            await specs();
+        },
+        async:true
+    },
+    //0x414, 0x43B, 0x44F, 0x20, 0x421, 0x43E, 0x43B, 0x44F, 0x20, 0x42F, 0x441, 0x43E, 0x43D, 0x43E, 0x432, 0x43D, 0x430, 0x2F, 0x432, 0x438, 0x447, 0x20, 0x41C, 0x435, 0x43D, 0x437, 0x438, 0x441
+    "yummers":{
+        func:function(command) {
+            console.debug("JOKE-СОЛЯ");
+            console.log(`${command.substring(8,command.length)}\nYummers!`)
+        },
+        async:false
+    },
+    "ai":{
+        func:function(command) {
+            console.debug("JOKE-ИИ");
+            console.log("No.");
+        },
+        async:false
+    },
+    "debug":{
+        func:function(command) {
             debug = !debug;
             console.debug(`DEBUG = ${debug}`)
-        } else if (command == "clear") {
+        },
+        async:false
+    },
+    "clear":{
+        func:function(command) {
             console.debug("CLEAR")
             console.clear();
-        //File manipulation commands:
-        } else if (command.substring(0, 4) == "save") {
-            /*
-            Sourced from:
-            https://nodejs.org/api/fs.html#fswriteFfile-data-options
-            */
+        },
+        async:false
+    },
+    "save-folder":{
+        func:function(command) {
+            fs.mkdirSync(command.substring(12, command.length))
+        }
+    },
+    "save":{
+        func:function(command, args){
+            try {
             console.debug("SAVE FILE")
             let text = "";
             function mod() {
@@ -174,74 +279,217 @@ async function work() {
             }
             mod();
             text = text.replace("\n","")
-            fs.writeF(command.substring(5, command.length), text)
-        } else if (command.substring(0, 4) == "read") {
-            console.debug("READ FILE")
-            console.log(readFile(command.substring(5, command.length)));
-        } else if (command.substring(0,4) == "copy") {
+            fs.writeF(readFile(CD+args[1]), text)
+        } catch (err) {
+
+            console.log(err.message)
+        }
+        },
+        async:false
+    },
+    "correct":{
+        func:function(command) {
+            user.correct = command.substring(8,command.length);
+            fs.writeF(`NojOS-${ver}/NojOS-${ver}/userdata.json`, JSON.stringify(usr))
+        }
+    },
+    "read":{
+        func:function(command){
+            console.log(readFile(CD+command.substring(5, command.length)));
+        },
+        async:false
+    },
+    "copy":{
+        func:function(command){
             copy = command.substring(5,command.length);
-        } else if (command.substring(0,5) == "paste") {
-            let name = copy;
+        },
+        async:false
+    },
+    "paste":{
+        func:function(command) {
+            let name = copy + " - (copy)";
             if (command.length > 5) name = command.substring(6,command.length)
-            fs.writeF(name, readFile(copy))
-        } else if (command.substring(0,6) == "rename") {
-            let oldPath = command.substring(7,command.replace(" ","").indexOf(" ")+1)
-            let newPath = command.substring(command.replace(" ","").indexOf(" ")+1,command.length);
-            console.log(oldPath,newPath);
-            fs.renameSync(oldPath, newPath)
-        } else if (command.substring(0,3) == "del") {
-            fs.unlinkSync(command.substring(4,command.length));
-        } else if (command.substring(0,3) == "run") {
+            fs.writeF(CD+name, readFile(copy))
+        },
+        async:false
+    },
+    "rename":{
+        func:function(command){
+            let oldP = command.substring(7,command.replace(" ","").indexOf(" ")+1)
+            let newP = command.substring(command.replace(" ","").indexOf(" ")+1,command.length);
+            fs.renameSync(CD+oldP, CD+newP)
+        },
+        async:false
+    },
+    "del":{
+        func:function(command) {
+            if (command.substring(4,command.length) != `NojOS-${ver}/NojOS-${ver}/NojOS.js`) {
+            fs.rmSync(CD+command.substring(4,command.length));
+            } else {
+                throw new Error("\u001b[31mERROR:\u001b[0m Unable to delete NojOS")
+            }
+
+        },
+        async:false
+    },
+    "run":{
+        func:function(command) {
             console.debug("EVAL FILE");
-            eval(readFile(command.substring(4,command.length)));
-        } else if (command.substring(0,4) == "exec") {
+            eval(readFile(CD+command.substring(4,command.length)));
+        },
+        async:false
+    },
+    "mukha":{
+        func:function(command) {
+            console.debug("MUKHA");
+            console.log("Sorry, Mukha has not been implemented yet!")
+        },
+        async:false
+    },
+    "exec":{
+        func:function(command) {
             console.debug("EXECUTE FILE");
             exec(command.substring(5,command.length), (error, stdout, stderr) => console.log(stdout));
-        } else if (command.substring(0, 5) == "laika") {
+        },
+        async:false
+    },
+    "laika":{
+        func:function(command) {
             console.debug("EXECUTE LAIKA")
             let file = command.substring(6, command.length);
             if (file.substring(file.length-6,file.length) != ".laika") file  = file + ".laika";
-            compile(readFile(file));
+            compile(readFile(CD+file));
             console.debug(`ERROR`)
-        } else if (command == "calendar") {
+        },
+        async:false
+    },
+    "cmd":{
+        func:function(command) {
+            console.log("Under construction")
+            //Technical Difficulties
+            /*let name = command.substring(4,command.length).toLowerCase();
+            let err = false
+            for (let i = 0; i < Object.keys(cmd).length; i++) {
+                if (Object.keys(cmd)[i] == name) err = true;
+                if (cmd[Object.keys(cmd)[i]].base == true) throw new Error("Unable to edit base commands")
+            }
+            if (err) {
+                console.log(`Warning, command already exists.
+Proceeding will destroy old command and cannot be recovered`)
+                    let p = prompt("Continue (Y/N): ")
+                    if (p == "Y") {
+                        create()
+                    }
+            } else {
+                create()
+            }
+            function create() {
+            {
+            let func = "";
+            for (let i = 0, n = 1; i < n; i++) {
+                let last = `
+${prompt("")}`
+                func += last
+                if (last != "\nfin") n++
+            }
+            let async = prompt("Async: ")
+            if (async == "true") async = true
+            else if (async == "false") async = false
+            else async = false;
+            cmd[name] = {
+                func:function(command, args)
+                {
+                eval(func.replaceAll("fin", ""))
+                },
+                async:async
+            }
+            console.log(cmd[name].func)
+            if (user.cmd == undefined) user.cmd = {};
+            user.cmd[name] = cmd[name]
+            let usr = user;
+            usr.cmd[name].func = func.replaceAll("fin", "")
+            fs.writeF(`NojOS-${ver}/NojOS-${ver}/userdata.json`, JSON.stringify(usr))
+            console.log(cmd);
+            let fuc = cmd[name].func;
+            console.log(fuc);
+            cmd[name].func = new Function("function(command,args){"+fuc+"}")
+            cmd[name].base = false;
+        }}*/
+        },
+        async:false
+    },
+    "calendar":{
+        func:function(command) {
             cal();
-        } else if (command.substring(0, 4) == "echo") {
+        },
+        async:false
+    },
+    "echo":{
+        func:function(command) {
             console.debug(`ECHO ${command.substring(5,command.length)}`)
             command = command.substring(5, command.length).replaceAll("MATH", global).replaceAll("USER", process.env.USERNAME).replaceAll("DATE", Date().substring(0, 21)).replaceAll("\\n","\n");
             for (let v = 0; v < Object.keys(vars).length; v++) {
                 command = command.replaceAll("@"+Object.keys(vars)[v], vars[Object.keys(vars)[v]]);
             }
             console.log(command);
-        } else if (command.substring(0, 5) == "chyor") {
+        },
+        async:false
+    },
+    "chyor":{
+        func:function(command, args) {
             console.log("Loading\u001b[25m...")
-            let file = command.substring(6,command.length)
+            let file = args[1]
             let retro = false;
-            if (file.includes("retro")) file = file.replace(" retro", "").replace("retro ",""), retro = true;
+            if (args[2] == "retro") retro = true;
             if (!file.includes(".chyor")) file += ".chyor";
             console.debug(`CHYOR ${file}`);
-            let dat = spit(readFile(file),retro)
+            let dat = spit(readFile(CD+file),retro)
             console.log(dat.img);
             let buffer = dat.buffer
             console.debug(`LENGTH ${buffer.l}`);
             console.debug(`WIDTH ${buffer.w}`);
             console.debug(`RETRO ${retro}`);
-        } else if (command.substring(0,3) == "otv") {
+        },
+        async:false
+    },
+    "otv":{
+        func:async function(command){
             console.debug(`OTV ${command.substring(4,command.length)}`)
             console.log("Loading...");
-            let time = await play(readFile(command.substring(4,command.length)));
+            let time = await play(readFile(CD+command.substring(4,command.length)));
             let func = await setTimeout(time, work);
             func();
-        } else if (command.substring(0,5) == "image") {
-            let img = await terminalImage.file((command.substring(6,command.length)))
+        },
+        async:true
+    },
+    "image":{
+        func:async function(command){
+            try {
+            let img = await terminalImage.file((CD+command.substring(6,command.length)))
             console.debug(`IMAGE`)
             console.log(img);
+            } catch (err) {
+                console.log(err.message);
+            }
             let func = await work;
             func();
-        } else if (command.substring(0, 5) == "shape") {
-            shape(command);
-        } else if (command == "date") {
+        },
+        async:true
+    },
+    "shape":{
+        func:function(command){
+            shape(CD+command);
+        },
+        async:false
+    },
+    "date":{
+        func:function(command){
             console.log(Date().substring(0, 21));
-        } else if (command.substring(0, 4) == "dict") {
+        },
+        async:false,
+    },
+    "dict":{
+        func:function(command){
             console.debug(`DICT`)
             /*From Matthew Reagan
             https://github.com/matthewreagan/WebstersEnglishDictionary*/
@@ -255,22 +503,99 @@ async function work() {
                 output = output.replaceAll("\\n", "\n");
             }
             console.log(output);
-        } else if (command.substring(0, 3) == "var") {
+        },
+        async:false
+    },
+    "var":{
+        func:function(command){
             console.debug(`VAR ${command.substring(4, command.indexOf("="))} = ${command.substring(command.indexOf("=") + 1, command.length)}`)
             vars[command.substring(4, command.indexOf("="))] = command.substring(command.indexOf("=") + 1, command.length);
-        }else if (command.substring(0,3) == "dir"){
-            console.log(displayFolder(command.substring(4,command.length)));
-        } else if (command == "shutdown") {
+        },
+        async:false
+    },
+    "dir":{
+        func:function(command){
+            console.log(displayFolder(CD+command.substring(4,command.length)));
+        },
+        async:false
+    },
+    "shutdown":{
+        func:function(command) {
             exec('shutdown /l', (error,stdout,stderr) => {
-                console.log(stdout);
+                //apparently gotta do that
+                process.stdout.write(stdout);
             });
-        } else if (command == "node") {
-            node(prompt(""));
-        } else if (command != "exit" && value != null) {
+        },
+        async:true
+    },
+    "node":{
+        func:function(command) {
+            node(prompt(`\u001b[31;1m${user.name}@${process.env.USERNAME}/${CD}/node\u001b[0m - `));
+        },
+        async:true
+    },
+    "destroy":{
+        func:function(command) {
+            let cmdV = cmd[command.substring(8, command.length)]
+            let base = cmdV.base;
+            //I ain't wasting that many lines
+            if (base == undefined) base = true;
+            if (!base) {
+                console.log("Warning, this will destroy the command permanently")
+                let yn = prompt("Continue (Y/N)");
+                if (yn == "Y") {
+                    cmd[command.substring(8,command.length)] = {async:false}
+                    user.cmd[command.substring(8,command.length)] = undefined
+                    //I should probably make this it's own function but I'm too lazy to.
+                    fs.writeF(`NojOS-${ver}/NojOS-${ver}/userdata.json`, JSON.stringify(user))
+                }
+            } else {
+                throw new Error("ERROR: You are not able to destroy any base commands.")
+            }
+        },
+        async:false
+    }
+};
+/*for (let i = 0; i < Object.keys(user.cmd).length; i++) {
+    cmd[Object.keys(user.cmd)[i]] =  user.cmd[Object.keys(user.cmd)]
+    if (cmd[Object.keys(user.cmd)[i]] != undefined) {
+    cmd[Object.keys(user.cmd)[i]].func = new Function(cmd[Object.keys(user.cmd)[i]].func)
+    cmd[Object.keys(user.cmd)[i]].base = false
+    }   
+}*/
+async function work() {
+    let value = prompt(`COLOR \u001b[32;1m${user.name}@${process.env.USERNAME}/${CD}\u001b[0m - `);
+    console.debug(`COMMAND ${value}`);
+    try {
+    fs.writeF(`NojOS-${ver}/NojOS-${ver}/hist.laika`, readFile(`NojOS-${ver}/NojOS-${ver}/hist.laika`) + "\n" + value)
+    if (value != null && value.substring(0, 1) == "~") {
+        value = value.replace(/\s+/g,' ').trim();
+        let command = value.substring(1, value.length)
+        let s = command;
+        if (command.substring(0,4)+" "=="err ") {
+            throw new Error("Error Message")
+        }
+        try {
+        String.prototype.ind = function(search) {
+            if (this.indexOf(search) == -1) return this.length
+            else return this.indexOf(search)
+        }
+        let arrcom = "[\""+command.replaceAll(" ", "\", \"")+"\"]"
+        let array = JSON.parse(arrcom)
+        await cmd[(command + " ").substring(0,command.ind(" "))].func(command, array);
+        } catch (err) {
+            if (command != "exit" && err.message == "Cannot read properties of undefined (reading 'func')") {
+                command = "err"
+            } else if (err.message != "Cannot read properties of undefined (reading 'func')") {
+                console.log("\u001b[31mERROR:\u001b[0m " + err.message);
+            }
+        }
+        if (command != "exit" && command == "err") {
+            command = s;
             console.debug(`ERROR`)
             let com = command;
             command = command.substring(0,command.indexOf(" "))
-            let commands = ["calendar","node","dir","var","dict","date","shape","img","help","math","beep","prog-info","file-info","device-info","yummers","ai","debug","clear","save","read","run","exec","laika","echo","chyor","otv"]
+            let commands = Object.keys(cmd)
             let sim = [];
             let obj = {};
             // Source - https://stackoverflow.com/a/61991387
@@ -278,9 +603,9 @@ async function work() {
             // Retrieved 2026-05-31, License - CC BY-SA 4.0
 
             function solution(str1, str2) {
-                var count = 0;
-                var find = -1;
-                for (var i = 0; i < str1.length; i++) {
+                let count = 0;
+                let find = -1;
+                for (let i = 0; i < str1.length; i++) {
                     find = str2.indexOf(str1.charAt(i));
                 if (find > -1) {
                     count++;
@@ -289,30 +614,49 @@ async function work() {
                 }
                 return count;
             };
+            function ShareByOrder(str1, str2){
+                let count = 0;
+                let l = str2.length
+                if (str1.length > str2.length) l = str1.length
+                for (let i = 0; i < l; i++) {
+                    if (str1.substring(i,i+1) == str2.substring(i,i+1)) count++;
+                }
+                return count;
+            }
+            //equals ShareByOrder for error correction...
+            let SolMeth = ShareByOrder;
+            if (user.correct == "order") SolMeth = ShareByOrder
+            else if (user.correct == "pure") SolMeth = solution
             for (let i = 0; i < commands.length; i++) {
-                sim.push(solution(commands[i],com));
-                obj[solution(commands[i],com)] = commands[i];
+                sim.push(SolMeth(commands[i],com));
+                obj[SolMeth(commands[i],com)] = commands[i];
             }
             let max = Math.max.apply(Math, sim);
             let guess = obj[max];
-            let tag = ` Did you mean ${guess}?`
+            let tag = ` Did you mean '${guess}'?`
+            if (guess == com) tag = "";
             if (guess.length > max+3) tag = "";
             com = com+" "
-            console.log(`ERROR: '~${com.substring(0,com.indexOf(" "))}' is not defined.${tag}`);
-        } else if (!command.includes("otv")) {
+            console.log(`\u001b[31mERROR:\u001b[0m '${com.substring(0,com.indexOf(" "))}' is not defined.${tag}`);
+        } else if (command == "exit") {
             console.log("Thank you for using NojOS");
         }
-        if (command != "exit" && command != "math" && command.substring(0,3) != "otv" && command.substring(0,5) != "image" && command != 'device-info' && value != null && command != "node" && command != "shutdown") work();
+        let con = 'command != "exit"'
+        for (let i = 0; i < Object.keys(cmd).length; i++) {
+            if (cmd[Object.keys(cmd)[i]].async) con += ` && command.substring(0,${Object.keys(cmd)[i].length}) != "${Object.keys(cmd)[i]}"`
+        }
+        if (eval(con)) work();
     } else if (value != null) {
         console.debug(`ERROR`)
         value = value+" "
-        console.log(`ERROR: '${value.substring(0,value.indexOf(" "))}' is invalid syntax, try '~${value.substring(0,value.indexOf(" "))}'`);
+        console.log(`\u001b[31mERROR:\u001b[0m '${value.substring(0,value.indexOf(" "))}' is invalid syntax, try '~${value.substring(0,value.indexOf(" "))}'`);
         work();
     } else {
         console.debug(`EXIT`)
         console.log("Thank you for using NojOS");
     }} catch (err) {
         console.log(err.message);
+        work();
     }
 }
 /**
@@ -459,15 +803,13 @@ Array.prototype.isEmpty = function() {
 function displayFolder(folder) {
     console.debug(`DISPLAY ${folder}`);
     let data = readFolder(folder);
-    let output;
+    let output = "";
     if (typeof data == "object") {
     if (data[0] != undefined) {
     for (let i = 0; i < data.length; i++) {
         if (data[i].isDir) output += "\n"+data[i].name+" (folder)"
         else output += "\n"+data[i].name
     }
-    output = output.replaceAll("undefined\n","");
-    output = output.replaceAll("undefined", "")
     }} else output = data;
     return output;
 }
@@ -615,7 +957,7 @@ function compile(data) {
             let condition = command.substring(command.indexOf("\\") + 1, command.indexOf("/")).replaceAll(" ", "");
             console.debug(`CONDITION ${condition}`)
             if (!command.includes("{")) {
-                throw new Error("Failure to start punctuation for if statement");
+                throw new Error("\u001b[31mERROR:\u001b[0m Failure to start punctuation for if statement");
             }
             let value = lexer.bool(condition);
             console.debug(`VAL ${value}`)
@@ -631,7 +973,7 @@ function compile(data) {
             punc.for++;
             let condition = command.substring(command.indexOf("\\") + 1, command.indexOf("/")).replaceAll(" ", "");
             if (!command.replace(condition,"").includes("<")) {
-                throw new Error("Failure to start punctuation for for statement");
+                throw new Error("\u001b[31mERROR:\u001b[0m Failure to start punctuation for for statement");
             }
             console.log(condition);
             let value = lexer.bool(condition);
@@ -693,7 +1035,7 @@ function compile(data) {
             }
             console.debug(`VAR ${command.substring(4, command.indexOf("="))} = ${variables[command.substring(4, command.indexOf("="))]}`)
         } else {
-            throw new Error(`Invalid command: '${command.substring(0,command.indexOf(" "))}'`);
+            throw new Error(`\u001b[31mERROR:\u001b[0m Invalid command: '${command.substring(0,command.indexOf(" "))}'`);
         }
     }
     console.debug("LAIKA EXIT")
@@ -792,7 +1134,7 @@ bool:function(condition) {
                     value = f1 < f2;
                 }
             } else {
-                throw new Error(`Invalid comparison: ${f1}${op}${f2}`);
+                throw new Error(`\u001b[31mERROR:\u001b[0m Invalid comparison: ${f1}${op}${f2}`);
             }
         } else if (op == "!" || op == "=") {
             if (op == "=") {
@@ -816,7 +1158,7 @@ bool:function(condition) {
         } else {
             value = variables[condition];
             if (typeof value != "boolean") {
-                throw new Error(`Condition '${variables[condition]}' doesn't return boolean value.`);
+                throw new Error(`\u001b[31mERROR:\u001b[0m Condition '${variables[condition]}' doesn't return boolean value.`);
             }
         }
         if (negate) {
@@ -862,7 +1204,7 @@ function mathf(expr, execute) {
     if (!execute) {
         console.debug(`REPL MATH`);
         console.log(output);
-        mathf(prompt("Expression: ", false));
+        mathf(prompt(`\u001b[31;1m${user.name}@${process.env.USERNAME}/${CD}/math\u001b[0m - `, false));
     } else {
         return output;
     }} else {
@@ -880,14 +1222,14 @@ function node(promp) {
         else output = eval(output.replaceAll("CON","").replaceAll("END",""))
     }
     console.log(output);
-    node(prompt(""));
+    node(prompt(`\u001b[31;1m${user.name}@${process.env.USERNAME}/${CD}/node\u001b[0m - `));
     } else {
         work();
     }
     } catch (err) {
         console.debug(`ERROR`)
         console.log(err.message);
-        node(prompt(""));
+        node(prompt(`\u001b[31;1m${user.name}@${process.env.USERNAME}/${CD}/node\u001b[0m -`));
     }
 }
 work();
