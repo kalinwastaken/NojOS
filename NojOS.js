@@ -9,7 +9,10 @@ Second note:
 This project is an attempt to reconnect to older software;
 and in that, try to solve problems that have already been solved.
 Reinvent the wheel, so to speak.
-It helps us understand the systems that make the world run.
+The bad code in this is on purpose; the calendar code looks wrong because
+some code should be slow. Not everything has to be super-duper optimized and
+do 3000 computations a millisecond. I'm exagerrating a bit but still. Dumb devices are fun and it easier for forkers
+to fuck with program.
 */
 //import {
 //    decode,
@@ -22,6 +25,7 @@ import {play} from './otv.js';
 import {setTimeout} from 'node:timers/promises'
 import promptSync from 'prompt-sync';
 import systeminformation from 'systeminformation';
+import got from 'got';
 const prompt = promptSync();
 import os from "node:os";
 import fs, { readFileSync } from "node:fs";
@@ -135,6 +139,19 @@ let help = {
 
 }
 let cmd = {
+    update:{
+        func:async function(command, args) {
+            let enter = prompt('Warning, this operation may turn version into unfinished version,\nContinue Y/N: ')
+            const data = await got(`https://raw.githubusercontent.com/kalinwastaken/NojOS/refs/heads/main/NojOS.js`);
+            if (enter == "Y" && data.body.substring(0,3) != "//U") {
+                fs.writeF(`NojOS-${ver}/NojOS-${ver}/NojOS.js`, data.body)
+            } else if (data.body.substring(0,3) == "//U") {
+                throw new Error("File is marked with uninstall marker, and cannot be installed")
+            }
+            await work();
+        },
+        async:true
+    },
     cd:{
         func:function(command, args){
             if (args[1] != '~') {
@@ -217,7 +234,7 @@ let cmd = {
             console.log(`Last modified by system ${stat.ctime}`);
             console.log(`Created ${stat.mtime}`);
             } else {
-                throw new Error("\u001b[31mERROR:\u001b[0m Unable to read directory as file")
+                throw new Error("Unable to read directory as file")
             }
         },
         async:false
@@ -324,7 +341,7 @@ let cmd = {
             if (command.substring(4,command.length) != `NojOS-${ver}/NojOS-${ver}/NojOS.js`) {
             fs.rmSync(CD+command.substring(4,command.length));
             } else {
-                throw new Error("\u001b[31mERROR:\u001b[0m Unable to delete NojOS")
+                throw new Error("Unable to delete NojOS")
             }
 
         },
@@ -548,7 +565,7 @@ ${prompt("")}`
                     fs.writeF(`NojOS-${ver}/NojOS-${ver}/userdata.json`, JSON.stringify(user))
                 }
             } else {
-                throw new Error("ERROR: You are not able to destroy any base commands.")
+                throw new Error("You are not able to destroy any base commands.")
             }
         },
         async:false
